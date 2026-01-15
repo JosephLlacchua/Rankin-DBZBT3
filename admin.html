@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Admin Realtime - BT3</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+<style>
+    body{font-family:Arial,sans-serif;background:#0d0d0d;color:#fff;padding:10px;margin:0;}
+    h1,h2{text-align:center; margin: 10px 0;}
+    section{background:#1a1a1a;padding:12px;margin-bottom:10px;border-radius:12px;}
+    input,button,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;font-size:1rem;box-sizing: border-box;}
+    button{background:#03a9f4;color:#000;cursor:pointer;font-weight: bold;}
+    select{background: #333; color: #fff;}
+    table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+    th,td{padding:12px 5px;border-bottom:1px solid #333;text-align:center;}
+    .rank-S{color:#FFD700;font-weight:bold;}.rank-A{color:#FF5252;}.rank-B{color:#4CAF50;}.rank-C{color:#03A9F4;}.rank-D{color:#BDBDBD;}.rank-E{color:#9E9E9E;}
+    .player-flag { width: 22px; height: 15px; object-fit: cover; display: block; margin: auto; }
+    .log { background: #111; padding: 8px; margin-bottom: 4px; border-radius: 6px; font-size: 0.8rem; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<h1>👑 PANEL CONTROL REALTIME</h1>
+
+<section>
+  <h2>➕ Agregar Guerrero</h2>
+  <input id="playerName" placeholder="Nombre">
+  <select id="playerCountry">
+    <option value="ARGENTINA">Argentina 🇦🇷</option>
+    <option value="PERÚ">Perú 🇵🇪</option>
+    <option value="PARAGUAY">Paraguay 🇵🇾</option>
+    <option value="CHILE">Chile 🇨🇱</option>
+    <option value="URUGUAY">Uruguay 🇺🇾</option>
+  </select>
+  <button onclick="addPlayer()">Agregar</button>
+</section>
+
+<section>
+  <h2>⚔️ Registrar Pelea</h2>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <input id="p1" list="playerList" placeholder="Jugador 1">
+    <input id="s1" type="number" placeholder="Pts 1">
+    <input id="p2" list="playerList" placeholder="Jugador 2">
+    <input id="s2" type="number" placeholder="Pts 2">
+  </div>
+  <button onclick="registerMatch()">Guardar Resultado</button>
+  <datalist id="playerList"></datalist>
+</section>
+
+<section>
+  <h2>📊 Ranking Preview</h2>
+  <table>
+    <thead><tr><th>#</th><th>🌐</th><th>Jugador</th><th>Rango</th><th>ELO</th><th>Borrar</th></tr></thead>
+    <tbody id="rankingPreview"></tbody>
+  </table>
+</section>
+
+<section>
+  <h2>📝 Últimos 10 Resultados</h2>
+  <div id="logs"></div>
+</section>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD_eT9VlLk_b1toTcva8w9NwU-FGjrEtEI",
+  authDomain: "ranking-dbz-bt3.firebaseapp.com",
+  databaseURL: "https://ranking-dbz-bt3-default-rtdb.firebaseio.com",
+  projectId: "ranking-dbz-bt3",
+  storageBucket: "ranking-dbz-bt3.firebasestorage.app",
+  messagingSenderId: "228731370543",
+  appId: "1:228731370543:web:ff3e418be283b6387edada"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let players = [], history = [];
+
+// Escuchar cambios de Firebase
+db.ref('/').on('value', (snapshot) => {
+    const data = snapshot.val();
+    players = data?.players || [];
+    history = data?.history || [];
+    renderAll();
+});
+
+function getRank(e) {
+    if(e >= 1900) return {n:"S", c:"rank-S"};
+    if(e >= 1600) return {n:"A", c:"rank-A"};
+    if(e >= 1300) return {n:"B", c:"rank-B"};
+    if(e >= 1000) return {n:"C", c:"rank-C"};
+    if(e >= 700) return {n:"D", c:"rank-D"};
+    return {n:"E", c:"rank-E"};
+}
+
+function getBanderaHTML(country){
+    const b = {"ARGENTINA":"bandera argentina.png","PERÚ":"bandera peru.png","PARAGUAY":"bandera paraguay.png","CHILE":"bandera chile.png","URUGUAY":"bandera uruguay.png"};
+    return country && b[country] ? `<img src="imagenes/${b[country]}" class="player-flag">` : "";
+}
+
+function addPlayer(){
+    const name = playerName.value.trim();
+    if(!name || players.find(p=>p.name === name)) return;
+    players.push({name, elo:500, wins:0, losses:0, streak:0, country: playerCountry.value});
+    db.ref('players').set(players);
+    playerName.value = "";
+}
+
+function registerMatch(){
+    const a=p1.value.trim(), b=p2.value.trim(), sa=parseInt(s1.value), sb=parseInt(s2.value);
+    if(!a || !b || a===b || isNaN(sa) || isNaN(sb)) return;
+    history.unshift({id: Date.now().toString(), p1:a, p2:b, s1:sa, s2:sb});
+    rebuild();
+    p1.value=""; p2.value=""; s1.value=""; s2.value="";
+}
+
+function rebuild(){
+    players.forEach(p=>{p.elo=500; p.wins=0; p.losses=0; p.streak=0;});
+    [...history].reverse().forEach(h => {
+        const A = players.find(p=>p.name===h.p1);
+        const B = players.find(p=>p.name===h.p2);
+        if(A && B) {
+            const win=h.s1>h.s2?A:B; const los=h.s1>h.s2?B:A;
+            const diff=Math.abs(h.s1-h.s2);
+            win.wins++; los.losses++;
+            win.elo += (20 + diff*2);
+            los.elo = Math.max(0, los.elo - (15 + diff*2));
+        }
+    });
+    db.ref('/').set({players, history});
+}
+
+function deletePlayer(name){
+    if(!confirm("¿Eliminar jugador?")) return;
+    players = players.filter(p=>p.name!==name);
+    history = history.filter(h=>h.p1!==name && h.p2!==name);
+    rebuild();
+}
+
+function renderAll(){
+    document.getElementById("playerList").innerHTML = players.map(p=>`<option value="${p.name}">`).join("");
+    const ordenados = [...players].sort((a,b)=>b.elo-a.elo);
+    document.getElementById("rankingPreview").innerHTML = ordenados.map((p,i)=>{
+        const r = getRank(p.elo);
+        return `<tr><td>${i+1}</td><td>${getBanderaHTML(p.country)}</td><td>${p.name}</td><td class="${r.c}">${r.n}</td><td>${Math.round(p.elo)}</td><td><button onclick="deletePlayer('${p.name}')">🗑️</button></td></tr>`;
+    }).join("");
+    document.getElementById("logs").innerHTML = history.slice(0,10).map(h=>`<div class="log"><span>${h.p1} vs ${h.p2} (${h.s1}-${h.s2})</span></div>`).join("");
+}
+</script>
+</body>
+</html>
