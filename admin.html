@@ -2,153 +2,339 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Admin Realtime - BT3</title>
+<title>Admin Ranking DBZ BT3</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-
 <style>
-    body{font-family:Arial,sans-serif;background:#0d0d0d;color:#fff;padding:10px;margin:0;}
-    h1,h2{text-align:center; margin: 10px 0;}
-    section{background:#1a1a1a;padding:12px;margin-bottom:10px;border-radius:12px;}
-    input,button,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;font-size:1rem;box-sizing: border-box;}
-    button{background:#03a9f4;color:#000;cursor:pointer;font-weight: bold;}
-    select{background: #333; color: #fff;}
-    table{width:100%;border-collapse:collapse;font-size:0.85rem;}
-    th,td{padding:12px 5px;border-bottom:1px solid #333;text-align:center;}
-    .rank-S{color:#FFD700;font-weight:bold;}.rank-A{color:#FF5252;}.rank-B{color:#4CAF50;}.rank-C{color:#03A9F4;}.rank-D{color:#BDBDBD;}.rank-E{color:#9E9E9E;}
-    .player-flag { width: 22px; height: 15px; object-fit: cover; display: block; margin: auto; }
-    .log { background: #111; padding: 8px; margin-bottom: 4px; border-radius: 6px; font-size: 0.8rem; display: flex; justify-content: space-between; }
+body{font-family:Arial,sans-serif;background:#0d0d0d;color:#fff;padding:10px;margin:0;}
+h1,h2{text-align:center; margin: 10px 0;}
+section{background:#1a1a1a;padding:12px;margin-bottom:10px;border-radius:12px;}
+input,button,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;font-size:1rem;box-sizing: border-box;}
+button{background:#03a9f4;color:#000;cursor:pointer;font-weight: bold;}
+button:hover{opacity:.85}
+select{background: #333; color: #fff; cursor: pointer;}
+
+/* --- ESTÉTICA RANKING --- */
+table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+th,td{padding:12px 5px;border-bottom:1px solid #333;text-align:center;}
+th{background:#222; color: #bbb; font-size: 0.75rem; text-transform: uppercase;}
+
+.rank-col { color: #FFD700; font-weight: bold; width: 30px; }
+.player-name-col { text-align: left; padding-left: 10px; font-weight: bold; }
+
+/* Colores de Rango según tu escala oficial */
+.rank-S { color:#FFD700; font-weight:bold; text-shadow: 0 0 5px rgba(255,215,0,0.5); }
+.rank-A { color:#FF5252; font-weight:bold; }
+.rank-B { color:#4CAF50; font-weight:bold; }
+.rank-C { color:#03A9F4; font-weight:bold; }
+.rank-D { color:#BDBDBD; font-weight:bold; }
+.rank-E { color:#9E9E9E; font-weight:bold; }
+
+.player-flag { width: 22px; height: 15px; object-fit: cover; display: block; margin: auto; border-radius: 2px; border: 1px solid rgba(255,255,255,0.1); }
+
+/* Botones de acción */
+.del-btn { background: transparent; border: none; cursor: pointer; opacity: 0.3; padding: 0; transition: 0.2s; }
+.del-btn:hover { opacity: 1; }
+.edit-btn { background: transparent; border: none; cursor: pointer; opacity: 0.5; padding: 0; margin-right: 8px; font-size: 1rem; }
+.edit-btn:hover { opacity: 1; }
+
+/* --- ÚLTIMOS RESULTADOS: COMPACTOS --- */
+.log-container { display: flex; flex-direction: column; gap: 4px; }
+.log { background: #111; padding: 10px 12px; border-radius: 6px; font-size: 0.85rem; display: flex; align-items: center; border-bottom: 1px solid #222; }
+.log-num { color: #FFD700; font-weight: bold; width: 35px; flex-shrink: 0; }
+.log-content { display: flex; justify-content: center; align-items: center; flex: 1; }
+.log-p1 { width: 140px; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.log-score { width: 60px; text-align: center; color: #aaa; font-weight: bold; flex-shrink: 0; }
+.log-p2 { width: 140px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.log-actions { width: 60px; text-align: right; flex-shrink: 0; display: flex; justify-content: flex-end; align-items: center; }
+
+.win{color:#4CAF50;font-weight:bold}
+.loss{color:#F44336;font-weight:bold}
+
+.pagination{text-align:center; margin-top:10px; display: flex; justify-content: center; gap: 8px;}
+.pagination button{width:32px;height:32px;border-radius:50%;border:2px solid #FFD700;background:#111;color:#FFD700;font-weight:bold;cursor:pointer; padding:0;}
+.pagination button.active{background:#FFD700;color:#111;}
+
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 100; }
+.hidden { display: none; }
+.modal-content { background: #222; padding: 20px; border-radius: 12px; width: 80%; max-width: 300px; text-align: center; }
 </style>
 </head>
 <body>
 
-<h1>👑 PANEL CONTROL REALTIME</h1>
+<h1>👑 ADMIN PANEL</h1>
 
 <section>
-  <h2>➕ Agregar Guerrero</h2>
-  <input id="playerName" placeholder="Nombre">
+  <h2 style="font-size: 1.1rem;">➕ Agregar jugador</h2>
+  <input id="playerName" placeholder="Nombre del jugador">
   <select id="playerCountry">
+    <option value="">Seleccionar País (Opcional)</option>
     <option value="ARGENTINA">Argentina 🇦🇷</option>
     <option value="PERÚ">Perú 🇵🇪</option>
     <option value="PARAGUAY">Paraguay 🇵🇾</option>
     <option value="CHILE">Chile 🇨🇱</option>
     <option value="URUGUAY">Uruguay 🇺🇾</option>
   </select>
-  <button onclick="addPlayer()">Agregar</button>
+  <button onclick="addPlayer()">Agregar Guerrero</button>
 </section>
 
 <section>
-  <h2>⚔️ Registrar Pelea</h2>
+  <h2 style="font-size: 1.1rem;">⚔️ Registrar pelea</h2>
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
     <input id="p1" list="playerList" placeholder="Jugador 1">
-    <input id="s1" type="number" placeholder="Pts 1">
+    <input id="s1" type="number" placeholder="Puntos 1">
     <input id="p2" list="playerList" placeholder="Jugador 2">
-    <input id="s2" type="number" placeholder="Pts 2">
+    <input id="s2" type="number" placeholder="Puntos 2">
   </div>
-  <button onclick="registerMatch()">Guardar Resultado</button>
+  <button onclick="registerMatch()">Guardar resultado</button>
+  <div id="confirm"></div>
   <datalist id="playerList"></datalist>
 </section>
 
 <section>
-  <h2>📊 Ranking Preview</h2>
+  <h2 style="font-size: 1.1rem;">📊 Ranking (preview)</h2>
   <table>
-    <thead><tr><th>#</th><th>🌐</th><th>Jugador</th><th>Rango</th><th>ELO</th><th>Borrar</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Pos</th>
+        <th>🌐</th>
+        <th style="text-align:left; padding-left:10px;">Jugador</th>
+        <th>Rango</th>
+        <th>ELO</th>
+        <th>W/L</th>
+        <th>Racha</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
     <tbody id="rankingPreview"></tbody>
   </table>
+  <div id="rankingPagination" class="pagination"></div>
 </section>
 
 <section>
-  <h2>📝 Últimos 10 Resultados</h2>
-  <div id="logs"></div>
+  <h2 style="font-size: 1.1rem;">📝 Últimos resultados</h2>
+  <div id="logs" class="log-container"></div>
+  <div id="logsPagination" class="pagination"></div>
 </section>
 
+<div id="editModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>✏️ Editar resultado</h3>
+    <input id="editS1" type="number" placeholder="Puntos 1">
+    <input id="editS2" type="number" placeholder="Puntos 2">
+    <button onclick="saveEdit()">Guardar cambios</button>
+    <button onclick="closeEdit()" style="background:#444;">Cancelar</button>
+  </div>
+</div>
+
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyD_eT9VlLk_b1toTcva8w9NwU-FGjrEtEI",
-  authDomain: "ranking-dbz-bt3.firebaseapp.com",
-  databaseURL: "https://ranking-dbz-bt3-default-rtdb.firebaseio.com",
-  projectId: "ranking-dbz-bt3",
-  storageBucket: "ranking-dbz-bt3.firebasestorage.app",
-  messagingSenderId: "228731370543",
-  appId: "1:228731370543:web:ff3e418be283b6387edada"
-};
+const STORAGE_KEY="fightcade_local_data";
+let players=[], history=[];
+let editingId=null;
+const PAGE_SIZE = 10; 
+let currentPageLogs = 1;
+let currentPageRanking = 1;
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+// Tus rangos oficiales
+const ranks=[
+  {name:"E",min:0,max:699,class:"rank-E"},
+  {name:"D",min:700,max:999,class:"rank-D"},
+  {name:"C",min:1000,max:1299,class:"rank-C"},
+  {name:"B",min:1300,max:1599,class:"rank-B"},
+  {name:"A",min:1600,max:1899,class:"rank-A"},
+  {name:"S",min:1900,max:Infinity,class:"rank-S"}
+];
 
-let players = [], history = [];
-
-// Escuchar cambios de Firebase
-db.ref('/').on('value', (snapshot) => {
-    const data = snapshot.val();
-    players = data?.players || [];
-    history = data?.history || [];
-    renderAll();
-});
-
-function getRank(e) {
-    if(e >= 1900) return {n:"S", c:"rank-S"};
-    if(e >= 1600) return {n:"A", c:"rank-A"};
-    if(e >= 1300) return {n:"B", c:"rank-B"};
-    if(e >= 1000) return {n:"C", c:"rank-C"};
-    if(e >= 700) return {n:"D", c:"rank-D"};
-    return {n:"E", c:"rank-E"};
+function getRank(elo) {
+    return ranks.find(r => elo >= r.min && elo <= r.max) || ranks[0];
 }
 
+const countryByName = {
+  "DARK": "ARGENTINA", "ETR-FASTEK": "ARGENTINA", "ETR-MICKY": "ARGENTINA",
+  "MILANCO": "ARGENTINA", "KEVON": "ARGENTINA", "MORATO": "ARGENTINA",
+  "ETR-JYX": "ARGENTINA", "ANDY-PEREZ": "ARGENTINA", "CHINCHANO": "PERÚ",
+  "EMANUEL09": "PERÚ", "ETR-NOVAK": "ARGENTINA", "JNC": "PARAGUAY", 
+  "BRIAN-TNK": "ARGENTINA", "MAX-FARO": "ARGENTINA", "ALEXANDER": "ARGENTINA"
+};
+
 function getBanderaHTML(country){
-    const b = {"ARGENTINA":"bandera argentina.png","PERÚ":"bandera peru.png","PARAGUAY":"bandera paraguay.png","CHILE":"bandera chile.png","URUGUAY":"bandera uruguay.png"};
-    return country && b[country] ? `<img src="imagenes/${b[country]}" class="player-flag">` : "";
+  if(!country) return "";
+  const c = country.toUpperCase();
+  const banderas = {
+    "ARGENTINA": "bandera argentina.png",
+    "PERÚ": "bandera peru.png",
+    "PARAGUAY": "bandera paraguay.png",
+    "CHILE": "bandera chile.png",
+    "URUGUAY": "bandera uruguay.png"
+  };
+  return banderas[c] ? `<img src="imagenes/${banderas[c]}" class="player-flag">` : "";
+}
+
+function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify({players,history})); renderAll(); }
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const d = JSON.parse(raw);
+      players = d.players || [];
+      history = d.history || [];
+    }
+  }catch(e){ players=[]; history=[]; }
+  renderAll();
 }
 
 function addPlayer(){
-    const name = playerName.value.trim();
-    if(!name || players.find(p=>p.name === name)) return;
-    players.push({name, elo:500, wins:0, losses:0, streak:0, country: playerCountry.value});
-    db.ref('players').set(players);
-    playerName.value = "";
-}
-
-function registerMatch(){
-    const a=p1.value.trim(), b=p2.value.trim(), sa=parseInt(s1.value), sb=parseInt(s2.value);
-    if(!a || !b || a===b || isNaN(sa) || isNaN(sb)) return;
-    history.unshift({id: Date.now().toString(), p1:a, p2:b, s1:sa, s2:sb});
-    rebuild();
-    p1.value=""; p2.value=""; s1.value=""; s2.value="";
-}
-
-function rebuild(){
-    players.forEach(p=>{p.elo=500; p.wins=0; p.losses=0; p.streak=0;});
-    [...history].reverse().forEach(h => {
-        const A = players.find(p=>p.name===h.p1);
-        const B = players.find(p=>p.name===h.p2);
-        if(A && B) {
-            const win=h.s1>h.s2?A:B; const los=h.s1>h.s2?B:A;
-            const diff=Math.abs(h.s1-h.s2);
-            win.wins++; los.losses++;
-            win.elo += (20 + diff*2);
-            los.elo = Math.max(0, los.elo - (15 + diff*2));
-        }
-    });
-    db.ref('/').set({players, history});
+  const name=playerName.value.trim();
+  const country=playerCountry.value;
+  if(!name||players.find(p=>p.name===name))return;
+  players.push({name,elo:500,wins:0,losses:0,streak:0,country:country||null});
+  playerName.value=""; playerCountry.value="";
+  save();
 }
 
 function deletePlayer(name){
-    if(!confirm("¿Eliminar jugador?")) return;
-    players = players.filter(p=>p.name!==name);
-    history = history.filter(h=>h.p1!==name && h.p2!==name);
-    rebuild();
+  if(!confirm(`¿Eliminar a "${name}" y todo su historial?`)) return;
+  players = players.filter(p => p.name !== name);
+  history = history.filter(h => h.p1 !== name && h.p2 !== name);
+  rebuild();
+  save();
+}
+
+function deleteMatch(id){
+  if(!confirm("¿Eliminar este resultado de pelea?")) return;
+  history = history.filter(h => h.id !== id);
+  rebuild();
+  save();
+}
+
+function applyMatch(A,B,sa,sb){
+  const winner=sa>sb?A:B; const loser=sa>sb?B:A;
+  winner.wins++; loser.losses++;
+  const diff=Math.abs(sa-sb);
+  winner.elo+=20+diff*2;
+  loser.elo=Math.max(0,loser.elo-(15+diff*2));
+}
+
+function computeStreakFor(name){
+  let streak=0;
+  for(const h of history){
+    if(h.p1!==name && h.p2!==name) continue;
+    const won=(h.p1===name&&h.s1>h.s2)||(h.p2===name&&h.s2>h.s1);
+    if(streak===0) streak=won?1:-1;
+    else if((streak>0&&won)||(streak<0&&!won)) streak+=won?1:-1;
+    else break;
+  }
+  return streak;
+}
+
+function rebuild(){
+  players.forEach(p=>{p.elo=500;p.wins=0;p.losses=0;p.streak=0});
+  [...history].reverse().forEach(h=>{
+    const A=players.find(p=>p.name===h.p1);
+    const B=players.find(p=>p.name===h.p2);
+    if(A&&B) applyMatch(A,B,h.s1,h.s2);
+  });
+  players.forEach(p=>p.streak=computeStreakFor(p.name));
+}
+
+function registerMatch(){
+  const a=p1.value.trim(), b=p2.value.trim();
+  const sa=parseInt(s1.value), sb=parseInt(s2.value);
+  if(!a||!b||a===b||isNaN(sa)||isNaN(sb))return;
+  history.unshift({id:crypto.randomUUID(),p1:a,p2:b,s1:sa,s2:sb});
+  rebuild(); save();
+  p1.value=""; s1.value=""; p2.value=""; s2.value="";
+  confirm.innerHTML=`<div style="background:#2e7d32;padding:6px;border-radius:6px;text-align:center;margin-top:5px;">✅ Guardado</div>`;
+  setTimeout(()=>confirm.innerHTML="", 1000);
 }
 
 function renderAll(){
-    document.getElementById("playerList").innerHTML = players.map(p=>`<option value="${p.name}">`).join("");
-    const ordenados = [...players].sort((a,b)=>b.elo-a.elo);
-    document.getElementById("rankingPreview").innerHTML = ordenados.map((p,i)=>{
-        const r = getRank(p.elo);
-        return `<tr><td>${i+1}</td><td>${getBanderaHTML(p.country)}</td><td>${p.name}</td><td class="${r.c}">${r.n}</td><td>${Math.round(p.elo)}</td><td><button onclick="deletePlayer('${p.name}')">🗑️</button></td></tr>`;
-    }).join("");
-    document.getElementById("logs").innerHTML = history.slice(0,10).map(h=>`<div class="log"><span>${h.p1} vs ${h.p2} (${h.s1}-${h.s2})</span></div>`).join("");
+  document.getElementById("playerList").innerHTML = players.map(p => `<option value="${p.name}">`).join("");
+  renderRanking();
+  renderLogs();
 }
+
+function renderRanking(){
+  const rankingBody = document.getElementById("rankingPreview");
+  const ordenados = [...players].sort((a,b)=>b.elo-a.elo);
+  const start = (currentPageRanking - 1) * PAGE_SIZE;
+  const pagePlayers = ordenados.slice(start, start + PAGE_SIZE);
+
+  rankingBody.innerHTML = pagePlayers.map((p, i) => {
+    const bandera = getBanderaHTML(p.country || countryByName[p.name]);
+    const rachaText = p.streak > 0 ? '🔥 '+p.streak : (p.streak < 0 ? '💀 '+Math.abs(p.streak) : '-');
+    const globalIndex = start + i + 1;
+    const r = getRank(p.elo);
+    
+    return `<tr>
+      <td class="rank-col">${globalIndex}°</td>
+      <td>${bandera}</td>
+      <td class="player-name-col">${p.name}</td>
+      <td><span class="${r.class}">${r.name}</span></td>
+      <td>${Math.round(p.elo)}</td>
+      <td>${p.wins}/${p.losses}</td>
+      <td>${rachaText}</td>
+      <td><button class="del-btn" onclick="deletePlayer('${p.name}')">🗑️</button></td>
+    </tr>`;
+  }).join("");
+
+  renderPagination("rankingPagination", ordenados.length, currentPageRanking, (p)=> { currentPageRanking=p; renderRanking(); });
+}
+
+function renderLogs(){
+  const logsEl = document.getElementById("logs");
+  const startL = (currentPageLogs - 1) * PAGE_SIZE;
+  const pageHistory = history.slice(startL, startL + PAGE_SIZE);
+
+  logsEl.innerHTML = pageHistory.map((h, i) => {
+    const p1win = h.s1 > h.s2;
+    return `
+      <div class="log">
+        <span class="log-num">#${startL + i + 1}</span> 
+        <div class="log-content">
+            <span class="log-p1 ${p1win ? 'win' : 'loss'}">${h.p1}</span> 
+            <span class="log-score">${h.s1} – ${h.s2}</span> 
+            <span class="log-p2 ${p1win ? 'loss' : 'win'}">${h.p2}</span>
+        </div>
+        <div class="log-actions">
+          <button class="edit-btn" onclick="openEdit('${h.id}')">✏️</button>
+          <button class="del-btn" style="font-size: 0.9rem;" onclick="deleteMatch('${h.id}')">🗑️</button>
+        </div>
+      </div>`;
+  }).join("");
+
+  renderPagination("logsPagination", history.length, currentPageLogs, (p)=> { currentPageLogs=p; renderLogs(); });
+}
+
+function renderPagination(id, total, current, callback){
+  const container = document.getElementById(id);
+  const pages = Math.ceil(total / PAGE_SIZE);
+  container.innerHTML = "";
+  if(pages <= 1) return;
+  for(let i=1;i<=pages;i++){
+    const btn = document.createElement("button");
+    btn.textContent = i;
+    if(i === current) btn.classList.add("active");
+    btn.onclick = ()=> callback(i);
+    container.appendChild(btn);
+  }
+}
+
+function openEdit(id){
+  const h=history.find(x=>x.id===id); if(!h) return;
+  editingId=id; editS1.value=h.s1; editS2.value=h.s2;
+  document.getElementById("editModal").classList.remove("hidden");
+}
+function saveEdit(){
+  const h=history.find(x=>x.id===editingId);
+  if(h){
+    h.s1=parseInt(editS1.value); h.s2=parseInt(editS2.value);
+    closeEdit(); rebuild(); save();
+  }
+}
+function closeEdit(){ document.getElementById("editModal").classList.add("hidden"); }
+
+load();
 </script>
 </body>
 </html>
