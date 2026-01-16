@@ -104,7 +104,7 @@ const countryByName = { "DARK": "ARGENTINA", "ETR-FASTEK": "ARGENTINA", "ETR-MIC
 function getBanderaHTML(country){
   if(!country) return "";
   const banderas = { "ARGENTINA": "bandera argentina.png", "PERÚ": "bandera peru.png", "PARAGUAY": "bandera paraguay.png", "CHILE": "bandera chile.png", "URUGUAY": "bandera uruguay.png" };
-  return banderas[country.toUpperCase()] ? `<img src="imagenes/${banderas[country.toUpperCase()]}" class="player-flag">` : "";
+  return banderas[country.toUpperCase()] ? `<img src="Imagenes/${banderas[country.toUpperCase()]}" class="player-flag">` : "";
 }
 
 const ranks=[ {name:"E",min:0,max:699,class:"rank-E"}, {name:"D",min:700,max:999,class:"rank-D"}, {name:"C",min:1000,max:1299,class:"rank-C"}, {name:"B",min:1300,max:1599,class:"rank-B"}, {name:"A",min:1600,max:1899,class:"rank-A"}, {name:"S",min:1900,max:Infinity,class:"rank-S"} ];
@@ -202,3 +202,4 @@ document.getElementById('searchRanking').addEventListener('input', ()=>{ current
 </body>
 
 </html>
+
