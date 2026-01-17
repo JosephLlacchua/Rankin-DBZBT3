@@ -54,12 +54,25 @@ canvas { background:#111; border-radius:8px; margin-top:10px; }
 </style>
 </head>
 <body>
-<div id="user-bar" style="background: #1a1a1a; padding: 10px; border-radius: 10px; margin: 10px auto; max-width: 800px; display: none; justify-content: space-between; align-items: center; border: 1px solid #333;">
-    <span>👤 Jugador: <strong id="current-user-name" style="color: #FFD700;"></strong></span>
-    <div>
-        <button onclick="irASala()" style="background: #FFD700; color: black; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 10px;">⚔️ Ir a Sala</button>
-        <button onclick="cerrarSesion()" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Salir</button>
+<div id="user-identity-container" style="max-width: 800px; margin: 20px auto; text-align: center;">
+    
+    <div id="user-bar" style="background: #1a1a1a; padding: 15px; border-radius: 10px; display: none; justify-content: space-between; align-items: center; border: 1px solid #333;">
+        <span style="color: white;">👤 Jugador: <strong id="current-user-name" style="color: #FFD700;"></strong></span>
+        <div>
+            <button onclick="irASala()" style="background: #FFD700; color: black; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 10px;">⚔️ Ir a Sala de Duelo</button>
+            <button onclick="cerrarSesion()" style="background: #ff4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">Salir</button>
+        </div>
     </div>
+
+    <div id="login-prompt" style="background: #1a1a1a; padding: 20px; border-radius: 10px; border: 1px solid #FFD700; display: none;">
+        <p style="color: #888; margin-bottom: 15px;">Identifícate para participar en el ranking y usar las salas:</p>
+        <a href="login.html" style="text-decoration: none;">
+            <button style="background: #FFD700; color: black; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem;">
+                🔑 INICIAR SESIÓN / ELEGIR JUGADOR
+            </button>
+        </a>
+    </div>
+
 </div>
 <h1>🔥 Ranking DBZ BT3 🔥</h1>
 
@@ -100,41 +113,6 @@ canvas { background:#111; border-radius:8px; margin-top:10px; }
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // --- SISTEMA DE SESIÓN ---
-function verificarSesion() {
-    const nombre = localStorage.getItem("nombre_jugador");
-    const userBar = document.getElementById("user-bar");
-    const nameDisplay = document.getElementById("current-user-name");
-
-    if (nombre) {
-        userBar.style.display = "flex";
-        nameDisplay.innerText = nombre;
-    } else {
-        userBar.style.display = "none";
-    }
-}
-
-function cerrarSesion() {
-    if (confirm("¿Quieres cerrar sesión?")) {
-        localStorage.removeItem("nombre_jugador");
-        location.reload();
-    }
-}
-
-function irASala() {
-    const nombre = localStorage.getItem("nombre_jugador");
-    if (!nombre) {
-        alert("Primero debes elegir tu nombre en el Login.");
-        window.location.href = 'login.html';
-    } else {
-        window.location.href = 'sala.html';
-    }
-}
-
-// IMPORTANTE: Asegúrate de llamar a verificarSesion() al cargar
-// Si ya tienes un window.onload, ponlo adentro. Si no, agrégalo:
-window.addEventListener('load', verificarSesion);
-
 const firebaseConfig = {
   apiKey: "AIzaSyD_eT9VlLk_b1toTcva8w9NwU-FGjrEtEI",
   authDomain: "ranking-dbz-bt3.firebaseapp.com",
@@ -368,9 +346,52 @@ modalStats.innerHTML += `
 
  function closeModal() {document.getElementById('modal').classList.add("hidden");}
 document.getElementById('searchRanking').addEventListener('input', ()=>{ currentPage=1; render(); });
+
+
+
+// --- LÓGICA DE SESIÓN Y VISIBILIDAD ---
+
+function verificarSesion() {
+    const nombre = localStorage.getItem("nombre_jugador");
+    const userBar = document.getElementById("user-bar");
+    const loginPrompt = document.getElementById("login-prompt");
+    const nameDisplay = document.getElementById("current-user-name");
+
+    if (nombre) {
+        // Usuario identificado
+        if (userBar) userBar.style.display = "flex";
+        if (loginPrompt) loginPrompt.style.display = "none";
+        if (nameDisplay) nameDisplay.innerText = nombre;
+    } else {
+        // Usuario anónimo
+        if (userBar) userBar.style.display = "none";
+        if (loginPrompt) loginPrompt.style.display = "block";
+    }
+}
+
+function cerrarSesion() {
+    if (confirm("¿Estás seguro de que quieres cerrar tu sesión?")) {
+        localStorage.removeItem("nombre_jugador");
+        location.reload(); // Recarga la página para aplicar los cambios
+    }
+}
+
+function irASala() {
+    const nombre = localStorage.getItem("nombre_jugador");
+    if (!nombre) {
+        alert("Primero debes identificarte.");
+        window.location.href = 'login.html';
+    } else {
+        window.location.href = 'sala.html';
+    }
+}
+
+// ESTA LÍNEA ACTIVA TODO AL CARGAR LA PÁGINA
+window.addEventListener('load', verificarSesion);
 </script>
 </body>
 </html>
+
 
 
 
