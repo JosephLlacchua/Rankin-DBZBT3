@@ -275,7 +275,7 @@ function buildEloTimeline(name){
     <b>Racha:</b> ${p.streak > 0 ? '🔥 ' + p.streak : p.streak < 0 ? '💀 ' + Math.abs(p.streak) : '-'}
   `;
 
-      const list = history.filter(h => h.p1 === name || h.p2 === name).slice(0, 10);
+      const list = history.filter(h => h.p1 === name || h.p2 === name).slice(0, 3);
       modalHistory.innerHTML = list.length
         ? list.map(h => {
           const p1win = h.s1 > h.s2;
@@ -330,6 +330,7 @@ document.getElementById('searchRanking').addEventListener('input', ()=>{ current
 </script>
 </body>
 </html>
+
 
 
 
