@@ -316,6 +316,13 @@ function buildEloTimeline(name){
       modal.classList.remove("hidden");
       modal.onclick = e => { if (e.target === modal) closeModal(); };
       document.onkeydown = e => { if (e.key === "Escape") closeModal(); };
+    // Botón para ir al perfil completo
+modalStats.innerHTML += `
+  <button onclick="window.location.href='perfil.html?player=${encodeURIComponent(name)}'" 
+    style="width:100%; margin-top:10px; padding:10px; cursor:pointer; background: #FFD700; color: #000; border: none; border-radius: 8px; font-weight: bold;">
+    Ver info completa
+  </button>
+`;
     }
 
  function closeModal() {document.getElementById('modal').classList.add("hidden");}
@@ -323,6 +330,7 @@ document.getElementById('searchRanking').addEventListener('input', ()=>{ current
 </script>
 </body>
 </html>
+
 
 
 
