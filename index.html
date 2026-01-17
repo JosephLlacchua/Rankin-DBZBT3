@@ -8,6 +8,19 @@
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
 <style>
+/* Ajuste para que el fondo se vea bien en celulares */
+@media (max-width: 768px) {
+    body {
+        /* Centramos la imagen para que lo más importante quede en el medio */
+        background-position: center center;
+        
+        /* 'contain' hace que la imagen se vea completa sin cortarse, 
+           pero 'cover' con ajustes suele ser mejor para no dejar espacios negros */
+        background-attachment: scroll; /* Mejora el rendimiento en móviles */
+    }
+}
+
+    
 body { font-family: Arial, sans-serif; background: url('Imagenes/goku wallp.jpg') no-repeat center center fixed; background-size: cover; color:#fff; padding:10px; margin:0; position: relative; z-index: 1; }
 body::before { content: ""; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: -1; }
 h1 { text-align:center; margin-bottom:20px; }
@@ -248,6 +261,7 @@ document.getElementById('searchRanking').addEventListener('input', ()=>{ current
 </script>
 </body>
 </html>
+
 
 
 
