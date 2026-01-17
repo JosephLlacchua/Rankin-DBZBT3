@@ -162,7 +162,7 @@ function render(){
   renderDatalist();
 }
 
-function renderPagination(){
+/*function renderPagination(){
   const paginationEl=document.getElementById('pagination');
   const totalPages=Math.ceil(filteredList.length/PAGE_SIZE);
   paginationEl.innerHTML="";
@@ -174,7 +174,69 @@ function renderPagination(){
     btn.onclick=()=>{ currentPage=i; render(); };
     paginationEl.appendChild(btn);
   }
-}
+}*/
+/*botones para cambiar de página y buscador de páginas*/
+    function renderPagination() {
+      const paginationEl = document.getElementById('pagination');
+      const totalPages = Math.ceil(filteredList.length / PAGE_SIZE);
+      paginationEl.innerHTML = "";
+
+      if (totalPages <= 1) return;
+
+      // Botón Anterior
+      const btnPrev = document.createElement("button");
+      btnPrev.textContent = "<";
+      btnPrev.disabled = (currentPage === 1);
+      btnPrev.onclick = () => { if (currentPage > 1) { currentPage--; render(); } };
+      paginationEl.appendChild(btnPrev);
+
+      // Botones Numéricos (Limitados a los más cercanos para no saturar)
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+        if (i === currentPage) btn.classList.add("active");
+        btn.onclick = () => { currentPage = i; render(); };
+        paginationEl.appendChild(btn);
+      }
+
+      // Botón Siguiente
+      const btnNext = document.createElement("button");
+      btnNext.textContent = ">";
+      btnNext.disabled = (currentPage === totalPages);
+      btnNext.onclick = () => { if (currentPage < totalPages) { currentPage++; render(); } };
+      paginationEl.appendChild(btnNext);
+
+      // --- BUSCADOR DE PÁGINA ---
+      const jumpContainer = document.createElement("div");
+      jumpContainer.style.marginTop = "10px";
+
+      const jumpInput = document.createElement("input");
+      jumpInput.type = "number";
+      jumpInput.placeholder = "Ir a página...";
+      jumpInput.min = 1;
+      jumpInput.max = totalPages;
+      jumpInput.style.width = "80px";
+      jumpInput.style.padding = "5px";
+      jumpInput.style.borderRadius = "5px";
+      jumpInput.style.border = "1px solid #FFD700";
+      jumpInput.style.background = "#111";
+      jumpInput.style.color = "#FFD700";
+      jumpInput.style.textAlign = "center";
+
+      jumpInput.onchange = () => {
+        let page = parseInt(jumpInput.value);
+        if (page >= 1 && page <= totalPages) {
+          currentPage = page;
+          render();
+        } else {
+          alert("Página no válida");
+          jumpInput.value = "";
+        }
+      };
+
+      jumpContainer.appendChild(jumpInput);
+      paginationEl.appendChild(jumpContainer);
+    }
 
 function renderDatalist(){
   const list=document.getElementById("playerList");
@@ -261,6 +323,7 @@ document.getElementById('searchRanking').addEventListener('input', ()=>{ current
 </script>
 </body>
 </html>
+
 
 
 
