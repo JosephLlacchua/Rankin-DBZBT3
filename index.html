@@ -38,6 +38,69 @@ canvas { background:#111; border-radius:8px; margin-top:10px; }
 .pagination button:hover { background:#FFD700; color:#111; box-shadow:0 0 12px #FFD700; transform:scale(1.1); }
 .pagination button.active { background:#FFD700; color:#111; box-shadow:0 0 15px #FFD700; }
 #searchRanking { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: none; background: #222; color: white; }
+
+@media (max-width: 768px) {
+    /* Quitamos el borde y el fondo de la tabla original */
+    table, thead, tbody, th, td, tr { 
+        display: block; 
+    }
+
+    /* Escondemos los encabezados de la tabla (los títulos de arriba) */
+    thead tr { 
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    tr {
+        margin-bottom: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid #444;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    td {
+        border: none;
+        position: relative;
+        padding-left: 50% !important; /* Espacio para el título */
+        text-align: right !important;
+        font-size: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        min-height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    td:last-child { border-bottom: 0; }
+
+    /* Insertamos los nombres de las columnas antes de cada dato */
+    td:before {
+        position: absolute;
+        left: 10px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        color: #FFD700; /* Color dorado para los títulos */
+    }
+
+    /* Etiquetas para cada celda en móvil */
+    td:nth-of-type(1):before { content: "Posición"; }
+    td:nth-of-type(2):before { content: "País"; }
+    td:nth-of-type(3):before { content: "Jugador"; }
+    td:nth-of-type(4):before { content: "Rango"; }
+    td:nth-of-type(5):before { content: "ELO"; }
+    td:nth-of-type(6):before { content: "Progreso"; }
+    td:nth-of-type(7):before { content: "Victorias"; }
+    td:nth-of-type(8):before { content: "Derrotas"; }
+    td:nth-of-type(9):before { content: "Racha"; }
+
+    /* Ajuste para que la barra de progreso no se vea gigante */
+    .progress { width: 100px; margin-left: auto; }
+}
 </style>
 </head>
 <body>
@@ -248,5 +311,6 @@ document.getElementById('searchRanking').addEventListener('input', ()=>{ current
 </script>
 </body>
 </html>
+
 
 
