@@ -4,7 +4,24 @@
 <meta charset="UTF-8">
 <title>Admin Ranking DBZ BT3</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+// --- PROTECCIÓN DE ACCESO ---
+(function() {
+    const claveCorrecta = "Vicky321tyler"; // Pon la misma que en el index
+    const sesion = sessionStorage.getItem("admin_auth");
 
+    if (sesion !== "true") {
+        const password = prompt("Seguridad: Ingrese la clave de administrador para acceder al panel:");
+        if (password === claveCorrecta) {
+            sessionStorage.setItem("admin_auth", "true");
+        } else {
+            alert("Acceso denegado.");
+            window.location.href = 'index.html';
+        }
+    }
+})();
+// ----------------------------
+</script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
@@ -350,4 +367,5 @@ btnMigrar.onclick = function() {
 document.body.appendChild(btnMigrar);
 </script>
 </body>
+
 </html>
