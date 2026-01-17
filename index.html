@@ -100,6 +100,41 @@ canvas { background:#111; border-radius:8px; margin-top:10px; }
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    // --- SISTEMA DE SESIÓN ---
+function verificarSesion() {
+    const nombre = localStorage.getItem("nombre_jugador");
+    const userBar = document.getElementById("user-bar");
+    const nameDisplay = document.getElementById("current-user-name");
+
+    if (nombre) {
+        userBar.style.display = "flex";
+        nameDisplay.innerText = nombre;
+    } else {
+        userBar.style.display = "none";
+    }
+}
+
+function cerrarSesion() {
+    if (confirm("¿Quieres cerrar sesión?")) {
+        localStorage.removeItem("nombre_jugador");
+        location.reload();
+    }
+}
+
+function irASala() {
+    const nombre = localStorage.getItem("nombre_jugador");
+    if (!nombre) {
+        alert("Primero debes elegir tu nombre en el Login.");
+        window.location.href = 'login.html';
+    } else {
+        window.location.href = 'sala.html';
+    }
+}
+
+// IMPORTANTE: Asegúrate de llamar a verificarSesion() al cargar
+// Si ya tienes un window.onload, ponlo adentro. Si no, agrégalo:
+window.addEventListener('load', verificarSesion);
+
 const firebaseConfig = {
   apiKey: "AIzaSyD_eT9VlLk_b1toTcva8w9NwU-FGjrEtEI",
   authDomain: "ranking-dbz-bt3.firebaseapp.com",
@@ -336,6 +371,7 @@ document.getElementById('searchRanking').addEventListener('input', ()=>{ current
 </script>
 </body>
 </html>
+
 
 
 
