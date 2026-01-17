@@ -182,23 +182,71 @@ function buildEloTimeline(name){
   return timeline.length ? timeline : [{label:'Inicio', elo: 500}];
 }
 
-function openModal(name){
-  const p=players.find(x=>x.name===name); if(!p) return;
-  document.getElementById('modalTitle').innerHTML = `${getBanderaHTML(p.country)} ${name}`;
-  document.getElementById('modalStats').innerHTML = `<b>ELO actual:</b> ${Math.round(p.elo)}<br><b>Victorias:</b> ${p.wins} | <b>Derrotas:</b> ${p.losses}`;
-  const list = history.filter(h => h.p1 === name || h.p2 === name);
-  document.getElementById('modalHistory').innerHTML = list.slice(0,10).map(h => `<li>${h.p1} ${h.s1}-${h.s2} ${h.p2}</li>`).join("");
-  
-  const data=buildEloTimeline(name);
-  const ctx=document.getElementById('eloChart').getContext('2d');
-  if(chartInstance) chartInstance.destroy();
-  chartInstance=new Chart(ctx,{ type:'line', data:{ labels:data.map(d=>d.label), datasets:[{ label:'Evolución ELO', data:data.map(d=>d.elo), borderColor:'#03a9f4', backgroundColor:'rgba(3,169,244,0.2)', fill:true, tension:0.3 }] }, options: { scales: { y: { beginAtZero: false } } } });
-  document.getElementById('modal').classList.remove("hidden");
-}
+    function openModal(name) {
+      const modal = document.getElementById('modal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalStats = document.getElementById('modalStats');
+      const modalHistory = document.getElementById('modalHistory');
+      const p = players.find(x => x.name === name);
+      if (!p) return;
+
+      const banderaHTML = getBanderaHTML(p.country);
+      modalTitle.innerHTML = `<div style="display:flex; align-items:center; justify-content:center;">${banderaHTML} <span style="margin-left:10px;">${name}</span></div>`;
+
+      modalStats.innerHTML = `
+    <b>ELO:</b> ${Math.round(p.elo)}<br>
+    <b>Victorias:</b> ${p.wins}<br>
+    <b>Derrotas:</b> ${p.losses}<br>
+    <b>Racha:</b> ${p.streak > 0 ? '🔥 ' + p.streak : p.streak < 0 ? '💀 ' + Math.abs(p.streak) : '-'}
+  `;
+
+      const list = history.filter(h => h.p1 === name || h.p2 === name);
+      modalHistory.innerHTML = list.length
+        ? list.map(h => {
+          const p1win = h.s1 > h.s2;
+          const youAreP1 = h.p1 === name;
+          const youWon = (youAreP1 && p1win) || (!youAreP1 && !p1win);
+          const icon = youWon ? '🔥' : '💀';
+          return `<li role="listitem">${icon} ${h.p1} ${h.s1} – ${h.s2} ${h.p2}</li>`;
+        }).join("")
+        : "<i>Sin historial</i>";
+
+      const data = buildEloTimeline(name);
+      const ctx = document.getElementById('eloChart').getContext('2d');
+      if (chartInstance) { chartInstance.destroy(); }
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.map(d => d.label),
+          datasets: [{
+            label: 'Evolución de ELO',
+            data: data.map(d => d.elo),
+            borderColor: '#03a9f4',
+            backgroundColor: 'rgba(3,169,244,0.2)',
+            tension: 0.25,
+            fill: true,
+            pointRadius: 3,
+            pointBackgroundColor: '#FFD700'
+          }]
+        },
+        options: {
+          plugins: { legend: { labels: { color: '#fff' } } },
+          scales: {
+            x: { ticks: { color: '#ccc' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+            y: { ticks: { color: '#ccc' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+          }
+        }
+      });
+
+      modal.classList.remove("hidden");
+      modal.onclick = e => { if (e.target === modal) closeModal(); };
+      document.onkeydown = e => { if (e.key === "Escape") closeModal(); };
+    }
 
  function closeModal() {document.getElementById('modal').classList.add("hidden");}
 document.getElementById('searchRanking').addEventListener('input', ()=>{ currentPage=1; render(); });
 </script>
 </body>
 </html>
+
 
