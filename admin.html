@@ -6,9 +6,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script>
-// --- PROTECCIÓN DE ACCESO ---
+// --- PROTECCIÓN DE ACCESO AL PANEL ---
 (function() {
-    const claveCorrecta = "Vicky321tyler"; // Pon la misma que en el index
+    const claveCorrecta = "Vicky321tyler"; 
     const sesion = sessionStorage.getItem("admin_auth");
 
     if (sesion !== "true") {
@@ -21,8 +21,8 @@
         }
     }
 })();
-// ----------------------------
 </script>
+
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
@@ -34,47 +34,33 @@ input,button,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;borde
 button{background:#03a9f4;color:#000;cursor:pointer;font-weight: bold;}
 button:hover{opacity:.85}
 select{background: #333; color: #fff; cursor: pointer;}
-
 table{width:100%;border-collapse:collapse;font-size:0.85rem;}
 th,td{padding:12px 5px;border-bottom:1px solid #333;text-align:center;}
 th{background:#222; color: #bbb; font-size: 0.75rem; text-transform: uppercase;}
-
 .rank-col { color: #FFD700; font-weight: bold; width: 30px; }
 .player-name-col { text-align: left; padding-left: 10px; font-weight: bold; }
-
-.rank-S { color:#FFD700; font-weight:bold; text-shadow: 0 0 5px rgba(255,215,0,0.5); }
+.rank-S { color:#FFD700; font-weight:bold; }
 .rank-A { color:#FF5252; font-weight:bold; }
 .rank-B { color:#4CAF50; font-weight:bold; }
 .rank-C { color:#03A9F4; font-weight:bold; }
 .rank-D { color:#BDBDBD; font-weight:bold; }
 .rank-E { color:#9E9E9E; font-weight:bold; }
-
-.player-flag { width: 22px; height: 15px; object-fit: cover; display: block; margin: auto; border-radius: 2px; border: 1px solid rgba(255,255,255,0.1); }
-
-.del-btn { background: transparent; border: none; cursor: pointer; opacity: 0.3; padding: 0; transition: 0.2s; width: auto; display: inline-block; }
-.del-btn:hover { opacity: 1; }
-.edit-btn { background: transparent; border: none; cursor: pointer; opacity: 0.5; padding: 0; margin-right: 8px; font-size: 1rem; width: auto; display: inline-block; }
-.edit-btn:hover { opacity: 1; }
-
+.player-flag { width: 22px; height: 15px; object-fit: cover; display: block; margin: auto; border-radius: 2px; }
+.del-btn, .edit-btn { background: transparent; border: none; cursor: pointer; opacity: 0.5; width: auto; display: inline-block; }
+.del-btn:hover, .edit-btn:hover { opacity: 1; }
 .log-container { display: flex; flex-direction: column; gap: 4px; }
-.log { background: #111; padding: 10px 12px; border-radius: 6px; font-size: 0.85rem; display: flex; align-items: center; border-bottom: 1px solid #222; }
-.log-num { color: #FFD700; font-weight: bold; width: 35px; flex-shrink: 0; }
+.log { background: #111; padding: 10px 12px; border-radius: 6px; font-size: 0.85rem; display: flex; align-items: center; }
+.log-num { color: #FFD700; font-weight: bold; width: 35px; }
 .log-content { display: flex; justify-content: center; align-items: center; flex: 1; }
-.log-p1 { width: 140px; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.log-score { width: 60px; text-align: center; color: #aaa; font-weight: bold; flex-shrink: 0; }
-.log-p2 { width: 140px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.log-actions { width: 60px; text-align: right; flex-shrink: 0; display: flex; justify-content: flex-end; align-items: center; }
-
+.log-score { width: 60px; text-align: center; color: #aaa; font-weight: bold; }
 .win{color:#4CAF50;font-weight:bold}
 .loss{color:#F44336;font-weight:bold}
-
 .pagination{text-align:center; margin-top:10px; display: flex; justify-content: center; gap: 8px;}
-.pagination button{width:32px;height:32px;border-radius:50%;border:2px solid #FFD700;background:#111;color:#FFD700;font-weight:bold;cursor:pointer; padding:0;}
+.pagination button{width:32px;height:32px;border-radius:50%;border:2px solid #FFD700;background:#111;color:#FFD700;cursor:pointer;}
 .pagination button.active{background:#FFD700;color:#111;}
-
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 100; }
 .hidden { display: none; }
-.modal-content { background: #222; padding: 20px; border-radius: 12px; width: 80%; max-width: 300px; text-align: center; }
+.modal-content { background: #222; padding: 20px; border-radius: 12px; width: 80%; max-width: 300px; }
 </style>
 </head>
 <body>
@@ -84,6 +70,7 @@ th{background:#222; color: #bbb; font-size: 0.75rem; text-transform: uppercase;}
 <section>
   <h2 style="font-size: 1.1rem;">➕ Agregar jugador</h2>
   <input id="playerName" placeholder="Nombre del jugador">
+  <input id="playerPass" type="password" placeholder="Contraseña (mín. 6 dígitos)">
   <select id="playerCountry">
     <option value="">Seleccionar País (Opcional)</option>
     <option value="ARGENTINA">Argentina 🇦🇷</option>
@@ -136,7 +123,7 @@ th{background:#222; color: #bbb; font-size: 0.75rem; text-transform: uppercase;}
 
 <div id="editModal" class="modal hidden">
   <div class="modal-content">
-    <h3>✏️ Editar resultado</h3>
+    <h3 style="text-align:center;">✏️ Editar resultado</h3>
     <input id="editS1" type="number" placeholder="Puntos 1">
     <input id="editS2" type="number" placeholder="Puntos 2">
     <button onclick="saveEdit()">Guardar cambios</button>
@@ -145,7 +132,6 @@ th{background:#222; color: #bbb; font-size: 0.75rem; text-transform: uppercase;}
 </div>
 
 <script>
-// CONFIGURACIÓN FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyD_eT9VlLk_b1toTcva8w9NwU-FGjrEtEI",
   authDomain: "ranking-dbz-bt3.firebaseapp.com",
@@ -185,7 +171,6 @@ function getRank(elo) { return ranks.find(r => elo >= r.min && elo <= r.max) || 
 
 function getBanderaHTML(country){
   if(!country) return "";
-  const c = country.toUpperCase();
   const banderas = {
     "ARGENTINA": "bandera argentina.png",
     "PERÚ": "bandera peru.png",
@@ -193,10 +178,9 @@ function getBanderaHTML(country){
     "CHILE": "bandera chile.png",
     "URUGUAY": "bandera uruguay.png"
   };
-  return banderas[c] ? `<img src="imagenes/${banderas[c]}" class="player-flag">` : "";
+  return banderas[country.toUpperCase()] ? `<img src="imagenes/${banderas[country.toUpperCase()]}" class="player-flag">` : "";
 }
 
-// Cargar datos desde Firebase en tiempo real
 db.ref('/').on('value', snapshot => {
     const data = snapshot.val();
     players = data?.players || [];
@@ -205,17 +189,33 @@ db.ref('/').on('value', snapshot => {
 });
 
 function saveCloud(){
-    db.ref('/').set({ players, history });
+    db.ref('/').set({ players: players || [], history: history || [] });
 }
 
 function addPlayer(){
   const name = document.getElementById("playerName").value.trim();
+  const pass = document.getElementById("playerPass").value.trim();
   const country = document.getElementById("playerCountry").value;
-  if(!name || players.find(p=>p.name===name)) return;
-  players.push({name, elo:500, wins:0, losses:0, streak:0, country:country||null});
+
+  if(!name) return alert("Ingrese un nombre");
+  if(pass.length < 6) return alert("La contraseña debe tener al menos 6 dígitos");
+  if(players.find(p=>p.name.toLowerCase() === name.toLowerCase())) return alert("El jugador ya existe");
+
+  players.push({
+    name: name,
+    password: pass, // SE GUARDA LA CLAVE
+    elo: 500,
+    wins: 0,
+    losses: 0,
+    streak: 0,
+    country: country || null
+  });
+
   document.getElementById("playerName").value=""; 
+  document.getElementById("playerPass").value=""; 
   document.getElementById("playerCountry").value="";
   saveCloud();
+  alert("Guerrero agregado con éxito");
 }
 
 function deletePlayer(name){
@@ -234,36 +234,39 @@ function deleteMatch(id){
 }
 
 function rebuild(){
-  players.forEach(p=>{p.elo=500;p.wins=0;p.losses=0;p.streak=0});
-  [...history].reverse().forEach(h=>{
-    const A=players.find(p=>p.name===h.p1);
-    const B=players.find(p=>p.name===h.p2);
-    if(A&&B) {
-        const sa=h.s1, sb=h.s2;
-        const winner=sa>sb?A:B; const loser=sa>sb?B:A;
-        winner.wins++; loser.losses++;
-        const diff=Math.abs(sa-sb);
-        winner.elo+=20+diff*2;
-        loser.elo=Math.max(0,loser.elo-(15+diff*2));
-    }
-  });
-  players.forEach(p=>{
-      let streak=0;
-      for(const h of history){
-        if(h.p1!==p.name && h.p2!==p.name) continue;
-        const won=(h.p1===p.name&&h.s1>h.s2)||(h.p2===p.name&&h.s2>h.s1);
-        if(streak===0) streak=won?1:-1;
-        else if((streak>0&&won)||(streak<0&&!won)) streak+=won?1:-1;
-        else break;
-      }
-      p.streak = streak;
-  });
+  players.forEach(p => { p.elo = 500; p.wins = 0; p.losses = 0; p.streak = 0; });
+  if (history.length > 0) {
+      [...history].reverse().forEach(h => {
+        const A = players.find(p => p.name === h.p1);
+        const B = players.find(p => p.name === h.p2);
+        if(A && B) {
+            const sa = parseInt(h.s1), sb = parseInt(h.s2);
+            const winner = sa > sb ? A : B; 
+            const loser = sa > sb ? B : A;
+            winner.wins++; loser.losses++;
+            const diff = Math.abs(sa - sb);
+            winner.elo += (20 + diff * 2);
+            loser.elo = Math.max(0, loser.elo - (15 + diff * 2));
+        }
+      });
+      players.forEach(p => {
+          let streak = 0;
+          for(const h of history){
+            if(h.p1 !== p.name && h.p2 !== p.name) continue;
+            const won = (h.p1 === p.name && h.s1 > h.s2) || (h.p2 === p.name && h.s2 > h.s1);
+            if(streak === 0) streak = won ? 1 : -1;
+            else if((streak > 0 && won) || (streak < 0 && !won)) streak += won ? 1 : -1;
+            else break;
+          }
+          p.streak = streak;
+      });
+  }
 }
 
 function registerMatch(){
   const a=p1Input.value.trim(), b=p2Input.value.trim();
   const sa=parseInt(s1Input.value), sb=parseInt(s2Input.value);
-  if(!a||!b||a===b||isNaN(sa)||isNaN(sb))return;
+  if(!a||!b||a===b||isNaN(sa)||isNaN(sb)) return alert("Datos incompletos");
   history.unshift({id:Date.now().toString(),p1:a,p2:b,s1:sa,s2:sb});
   rebuild(); 
   saveCloud();
@@ -287,10 +290,9 @@ function renderRanking(){
   rankingBody.innerHTML = pagePlayers.map((p, i) => {
     const bandera = getBanderaHTML(p.country || countryByName[p.name]);
     const rachaText = p.streak > 0 ? '🔥 '+p.streak : (p.streak < 0 ? '💀 '+Math.abs(p.streak) : '-');
-    const globalIndex = start + i + 1;
     const r = getRank(p.elo);
     return `<tr>
-      <td class="rank-col">${globalIndex}°</td>
+      <td class="rank-col">${start + i + 1}°</td>
       <td>${bandera}</td>
       <td class="player-name-col">${p.name}</td>
       <td><span class="${r.class}">${r.name}</span></td>
@@ -329,6 +331,7 @@ function renderLogs(){
 function renderPagination(id, total, current, callback){
   const container = document.getElementById(id);
   const pages = Math.ceil(total / PAGE_SIZE);
+  if(!container) return;
   container.innerHTML = "";
   if(pages <= 1) return;
   for(let i=1;i<=pages;i++){
@@ -341,21 +344,26 @@ function renderPagination(id, total, current, callback){
 }
 
 function openEdit(id){
-  const h=history.find(x=>x.id===id); if(!h) return;
-  editingId=id; editS1.value=h.s1; editS2.value=h.s2;
+  const h = history.find(x => x.id === id); 
+  if(!h) return;
+  editingId = id; 
+  document.getElementById("editS1").value = h.s1; 
+  document.getElementById("editS2").value = h.s2;
   document.getElementById("editModal").classList.remove("hidden");
 }
+
 function saveEdit(){
-  const h=history.find(x=>x.id===editingId);
+  const h = history.find(x => x.id === editingId);
   if(h){
-    h.s1=parseInt(editS1.value); h.s2=parseInt(editS2.value);
+    h.s1 = parseInt(document.getElementById("editS1").value);
+    h.s2 = parseInt(document.getElementById("editS2").value);
     document.getElementById("editModal").classList.add("hidden");
     rebuild(); saveCloud();
   }
 }
+
 function closeEdit(){ document.getElementById("editModal").classList.add("hidden"); }
 
-// BOTÓN DE MIGRACIÓN (SÓLO PARA PASAR DE LOCALSTORAGE A CLOUD)
 const btnMigrar = document.createElement("button");
 btnMigrar.innerHTML = "🚀 MIGRAR DATOS LOCALES A LA NUBE";
 btnMigrar.style.cssText = "background:#ff9800; margin-top:20px; color:black;";

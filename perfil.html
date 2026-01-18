@@ -9,56 +9,55 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        body { font-family: Arial, sans-serif; background: #000; color:#fff; padding:15px; margin:0; line-height: 1.4; }
-        .container { max-width: 800px; margin: auto; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid #333; }
-        .back-btn { background: #444; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
-        .back-btn:hover { background: #666; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0a0a0a; color:#fff; padding:15px; margin:0; }
+        .container { max-width: 800px; margin: auto; background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .back-btn { background: #222; color: #FFD700; border: 1px solid #FFD700; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; font-weight: bold; transition: 0.3s; }
+        .back-btn:hover { background: #FFD700; color: #000; }
         
         .header-perfil { text-align: center; border-bottom: 2px solid #FFD700; padding-bottom: 15px; margin-bottom: 25px; }
-        .header-perfil h1 { margin: 0; color: #FFD700; text-transform: uppercase; letter-spacing: 2px; }
+        .header-perfil h1 { margin: 10px 0; color: #FFD700; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .header-perfil img { width: 40px; border-radius: 4px; border: 1px solid #555; }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 25px; }
-        .stat-card { background: #1a1a1a; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #444; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .stat-card b { display: block; color: #aaa; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 5px; }
-        .stat-card span { display: block; font-size: 1.4rem; font-weight: bold; color: #FFD700; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: linear-gradient(145deg, #1a1a1a, #111); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #333; }
+        .stat-card b { display: block; color: #888; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px; }
+        .stat-card span { display: block; font-size: 1.6rem; font-weight: bold; color: #fff; }
+        .stat-card .highlight { color: #FFD700; }
 
-        .chart-container { background: #111; padding: 15px; border-radius: 12px; border: 1px solid #333; margin-bottom: 25px; }
+        .chart-container { background: #000; padding: 20px; border-radius: 15px; border: 1px solid #222; margin-bottom: 25px; }
         
         .history-list { list-style: none; padding: 0; margin: 0; }
-        .history-item { background: #1a1a1a; margin-bottom: 8px; padding: 12px; border-radius: 8px; border-left: 5px solid #444; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
-        .history-item.win { border-left-color: #4caf50; background: rgba(76, 175, 80, 0.1); }
-        .history-item.loss { border-left-color: #f44336; background: rgba(244, 67, 54, 0.1); }
+        .history-item { background: #151515; margin-bottom: 10px; padding: 15px; border-radius: 10px; border-left: 5px solid #444; display: flex; justify-content: space-between; align-items: center; }
+        .history-item.win { border-left-color: #4caf50; background: rgba(76, 175, 80, 0.05); }
+        .history-item.loss { border-left-color: #f44336; background: rgba(244, 67, 54, 0.05); }
         
-        .pagination { text-align: center; margin-top: 25px; display: flex; justify-content: center; flex-wrap: wrap; gap: 5px; }
-        .pagination button { padding: 8px 14px; cursor: pointer; background: #111; color: #FFD700; border: 1px solid #FFD700; border-radius: 5px; font-weight: bold; transition: 0.3s; }
+        .pagination { text-align: center; margin-top: 25px; display: flex; justify-content: center; gap: 8px; }
+        .pagination button { padding: 10px 15px; cursor: pointer; background: #111; color: #FFD700; border: 1px solid #FFD700; border-radius: 6px; font-weight: bold; }
         .pagination button.active { background: #FFD700; color: #000; }
-        .pagination button:hover:not(.active) { background: rgba(255, 215, 0, 0.2); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <button class="back-btn" onclick="window.location.href='index.html'">⬅ Volver al Ranking</button>
+    <button class="back-btn" onclick="window.location.href='index.html'">⬅ VOLVER AL RANKING</button>
     
     <div class="header-perfil">
-        <h1 id="pName">Cargando Jugador...</h1>
+        <h1 id="pName">Cargando...</h1>
     </div>
 
-    <div class="stats-grid" id="pStats">
-        </div>
+    <div class="stats-grid" id="pStats"></div>
 
     <div class="chart-container">
-        <h3 style="margin-top:0; color:#FFD700; font-size: 1rem;">Evolución de ELO</h3>
-        <canvas id="pChart" height="180"></canvas>
+        <h3 style="margin-top:0; color:#FFD700; font-size: 0.9rem; text-transform: uppercase;">Progreso de Poder (ELO)</h3>
+        <canvas id="pChart"></canvas>
     </div>
 
-    <h3 style="border-left: 4px solid #FFD700; padding-left: 10px;">Historial de Combates</h3>
+    <h3 style="border-left: 4px solid #FFD700; padding-left: 10px; text-transform: uppercase; font-size: 1rem;">Bitácora de Batallas</h3>
     <ul id="pHistory" class="history-list"></ul>
     <div id="pPagination" class="pagination"></div>
 </div>
 
 <script>
-    // --- 1. CONFIGURACIÓN FIREBASE (Usa tus mismas credenciales) ---
     const firebaseConfig = {
         apiKey: "AIzaSyD_eT9VlLk_b1toTcva8w9NwU-FGjrEtEI",
         authDomain: "ranking-dbz-bt3.firebaseapp.com",
@@ -71,9 +70,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- 2. VARIABLES DE ESTADO ---
     const urlParams = new URLSearchParams(window.location.search);
-    const targetName = urlParams.get('player'); // Obtenemos el nombre de la URL
+    const targetName = urlParams.get('player');
     let allHistoryForPlayer = [];
     let currentPage = 1;
     const PAGE_SIZE = 10;
@@ -81,7 +79,14 @@
 
     if(!targetName) window.location.href = 'index.html';
 
-    // --- 3. CARGA DE DATOS EN TIEMPO REAL ---
+    // Función para obtener bandera (igual que en Index)
+    function getBanderaImg(country) {
+        if(!country) return "";
+        const banderas = { "ARGENTINA": "bandera argentina.png", "PERÚ": "bandera peru.png", "PARAGUAY": "bandera paraguay.png", "CHILE": "bandera chile.png", "URUGUAY": "bandera uruguay.png" };
+        const file = banderas[country.toUpperCase()];
+        return file ? `<img src="Imagenes/${file}">` : "";
+    }
+
     db.ref('/').on('value', snapshot => {
         const data = snapshot.val();
         const playersList = data.players || [];
@@ -89,27 +94,27 @@
         const player = playersList.find(p => p.name === targetName);
 
         if(!player) {
-            document.getElementById('pName').textContent = "Jugador no encontrado";
+            document.getElementById('pName').textContent = "Guerrero no encontrado";
             return;
         }
 
-        // Llenar Estadísticas Superiores
-        document.getElementById('pName').textContent = player.name;
+        // Header con Bandera
+        document.getElementById('pName').innerHTML = `${getBanderaImg(player.country)} <span>${player.name}</span>`;
+
+        // Estadísticas
         document.getElementById('pStats').innerHTML = `
-            <div class="stat-card"><b>ELO Actual</b><span>${Math.round(player.elo)}</span></div>
+            <div class="stat-card"><b>Poder Total</b><span class="highlight">${Math.round(player.elo)}</span></div>
             <div class="stat-card"><b>Victorias</b><span>${player.wins}</span></div>
             <div class="stat-card"><b>Derrotas</b><span>${player.losses}</span></div>
-            <div class="stat-card"><b>Racha</b><span>${player.streak > 0 ? '🔥 '+player.streak : player.streak < 0 ? '💀 '+Math.abs(player.streak) : '-'}</span></div>
+            <div class="stat-card"><b>Racha Actual</b><span>${player.streak > 0 ? '🔥 '+player.streak : player.streak < 0 ? '💀 '+Math.abs(player.streak) : '-'}</span></div>
         `;
 
-        // Filtrar historial específico
         allHistoryForPlayer = fullHistory.filter(h => h.p1 === targetName || h.p2 === targetName);
         
         renderHistory();
-        renderChart(player, fullHistory, playersList);
+        renderChart(playersList, fullHistory);
     });
 
-    // --- 4. RENDERIZAR HISTORIAL CON PAGINACIÓN ---
     function renderHistory() {
         const listEl = document.getElementById('pHistory');
         const pagEl = document.getElementById('pPagination');
@@ -118,28 +123,27 @@
         const start = (currentPage - 1) * PAGE_SIZE;
         const currentItems = allHistoryForPlayer.slice(start, start + PAGE_SIZE);
 
-        if(currentItems.length === 0) {
-            listEl.innerHTML = "<i style='color:#666'>No hay combates registrados.</i>";
-            return;
-        }
-
         currentItems.forEach(h => {
-            const win = (h.p1 === targetName && h.s1 > h.s2) || (h.p2 === targetName && h.s2 > h.s1);
+            const isP1 = h.p1 === targetName;
+            const win = (isP1 && h.s1 > h.s2) || (!isP1 && h.s2 > h.s1);
+            const rival = isP1 ? h.p2 : h.p1;
+            const marcador = isP1 ? `${h.s1} - ${h.s2}` : `${h.s2} - ${h.s1}`;
+
             const li = document.createElement('li');
             li.className = `history-item ${win ? 'win' : 'loss'}`;
             li.innerHTML = `
-                <div style="display:flex; flex-direction:column;">
-                    <b style="color:${win ? '#4caf50' : '#f44336'}">${win ? 'VICTORIA' : 'DERROTA'}</b>
-                    <small style="color:#888">Marcador: ${h.s1} - ${h.s2}</small>
+                <div>
+                    <b style="color:${win ? '#4caf50' : '#f44336'}">${win ? 'VICTORIA' : 'DERROTA'}</b><br>
+                    <small style="color:#888">vs ${rival}</small>
                 </div>
-                <div style="text-align:right; font-weight:bold;">
-                    ${h.p1} vs ${h.p2}
+                <div style="text-align:right;">
+                    <span style="font-size:1.1rem; font-weight:bold;">${marcador}</span>
                 </div>
             `;
             listEl.appendChild(li);
         });
 
-        // Crear botones de paginación
+        // Paginación
         const totalPages = Math.ceil(allHistoryForPlayer.length / PAGE_SIZE);
         pagEl.innerHTML = "";
         if(totalPages > 1) {
@@ -147,27 +151,38 @@
                 const btn = document.createElement('button');
                 btn.textContent = i;
                 if(i === currentPage) btn.className = "active";
-                btn.onclick = () => { currentPage = i; renderHistory(); window.scrollTo(0,0); };
+                btn.onclick = () => { currentPage = i; renderHistory(); };
                 pagEl.appendChild(btn);
             }
         }
     }
 
-    // --- 5. RENDERIZAR GRÁFICO DE EVOLUCIÓN ---
-    function renderChart(player, history, playersList) {
-        const eloMap = new Map(playersList.map(p => [p.name, 500]));
-        const timeline = [];
+    function renderChart(playersList, history) {
+        // Inicializamos a todos en 500
+        const eloMap = new Map();
+        playersList.forEach(p => eloMap.set(p.name, 500));
 
-        // Reconstruir historia para el gráfico
+        const timeline = [{ label: 'Inicio', elo: 500 }];
+
+        // IMPORTANTE: Recorrer el historial de más viejo a más nuevo para reconstruir la curva
         [...history].reverse().forEach(h => {
-            if (!h.p1 || !h.p2) return;
-            const A=h.p1, B=h.p2, s1=h.s1, s2=h.s2;
-            const diff = Math.abs(s1-s2);
-            const winner = s1 > s2 ? A : B;
-            const loser = s1 > s2 ? B : A;
+            const A = h.p1;
+            const B = h.p2;
+            const s1 = parseInt(h.s1);
+            const s2 = parseInt(h.s2);
+            const diff = Math.abs(s1 - s2);
+            
+            // Misma fórmula que el ADMIN
+            const pointsWin = 20 + (diff * 2);
+            const pointsLoss = 15 + (diff * 2);
 
-            if (eloMap.has(winner)) eloMap.set(winner, eloMap.get(winner) + (20 + diff * 2));
-            if (eloMap.has(loser)) eloMap.set(loser, Math.max(0, eloMap.get(loser) - (15 + diff * 2)));
+            if (s1 > s2) {
+                if(eloMap.has(A)) eloMap.set(A, eloMap.get(A) + pointsWin);
+                if(eloMap.has(B)) eloMap.set(B, Math.max(0, eloMap.get(B) - pointsLoss));
+            } else {
+                if(eloMap.has(B)) eloMap.set(B, eloMap.get(B) + pointsWin);
+                if(eloMap.has(A)) eloMap.set(A, Math.max(0, eloMap.get(A) - pointsLoss));
+            }
 
             if (A === targetName || B === targetName) {
                 timeline.push({
@@ -177,38 +192,35 @@
             }
         });
 
-        const chartData = timeline.length ? timeline : [{label: 'Inicio', elo: 500}];
         const ctx = document.getElementById('pChart').getContext('2d');
-        
-        if (chartInstance) { chartInstance.destroy(); }
+        if (chartInstance) chartInstance.destroy();
 
         chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: chartData.map(d => d.label),
+                labels: timeline.map(d => d.label),
                 datasets: [{
-                    label: 'Trayectoria ELO',
-                    data: chartData.map(d => d.elo),
+                    label: 'ELO',
+                    data: timeline.map(d => d.elo),
                     borderColor: '#FFD700',
                     backgroundColor: 'rgba(255, 215, 0, 0.1)',
-                    borderWidth: 2,
+                    borderWidth: 3,
                     tension: 0.3,
                     fill: true,
-                    pointRadius: 3,
-                    pointHoverRadius: 6
+                    pointRadius: 4,
+                    pointBackgroundColor: '#FFD700'
                 }]
             },
             options: {
                 responsive: true,
                 plugins: { legend: { display: false } },
                 scales: {
-                    x: { ticks: { display: false }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    x: { ticks: { color: '#555', font: { size: 10 } }, grid: { display: false } },
+                    y: { ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } }
                 }
             }
         });
     }
 </script>
-
 </body>
 </html>
