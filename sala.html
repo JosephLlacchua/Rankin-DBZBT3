@@ -17,8 +17,6 @@
         .btn-entrar { background: #FFD700; color: #000; width: 85%; font-size: 1.1rem; }
         .btn-puntos { width: 100%; font-size: 1.5rem; background: #333; color: white; margin-top: 10px; }
         .btn-puntos:disabled { opacity: 0.2; cursor: not-allowed; }
-        
-        /* Estilos del Chat */
         .chat-area { margin-top: 20px; background: #000; border-radius: 10px; border: 1px solid #333; overflow: hidden; }
         #chat-messages { height: 150px; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; text-align: left; }
         .msg { padding: 8px 12px; border-radius: 8px; max-width: 85%; font-size: 0.9rem; line-height: 1.2; position: relative; }
@@ -44,7 +42,6 @@
 
     <div id="battle-room" class="container" style="display: none;">
         <h3 id="display-room-id" style="color:#FFD700; margin-top: 0;">-</h3>
-        
         <div style="display: flex; justify-content: space-between;">
             <div id="card-p1" class="player-card">
                 <h4 id="name-p1">...</h4>
@@ -57,9 +54,7 @@
                 <button id="btn-add-p2" class="btn-puntos" onclick="sumarPunto('s2')">+</button>
             </div>
         </div>
-
         <p id="waiting-msg" style="color: #666; font-size: 0.8rem; margin: 10px 0;">Esperando oponente...</p>
-
         <div class="chat-area">
             <div id="chat-messages"></div>
             <div class="chat-input-area">
@@ -67,8 +62,7 @@
                 <button onclick="enviarMensaje()" style="background:#FFD700; padding: 0 15px;">➤</button>
             </div>
         </div>
-
-        <button onclick="abandonarSala()" style="background: none; color: #ff4444; text-decoration: underline; margin-top: 15px; font-size: 0.8rem;">ABANDONAR SALA</button>
+        <button onclick="abandonarSala()" style="background: none; color: #ff4444; text-decoration: underline; margin-top: 15px; font-size: 0.8rem;">ABANDONAR (FINALIZAR AQUÍ)</button>
     </div>
 
     <script>
@@ -93,11 +87,10 @@
             salaId = document.getElementById('room-name').value.trim().toLowerCase();
             if (!salaId) return alert("Ponle un nombre a la sala");
             const ftVal = parseInt(document.getElementById('ft-limit').value);
-
             const refSala = db.ref('salas/' + salaId);
+
             refSala.once('value', snap => {
                 const data = snap.val();
-
                 if (!data) {
                     miRol = "p1";
                     refSala.set({ p1: miNombre, s1: 0, o1: true, p2: "Esperando...", s2: 0, o2: false, ft: ftVal, activa: true });
@@ -106,7 +99,6 @@
                     if (data.p2 === "Esperando..." || data.p2 === miNombre) {
                         miRol = "p2";
                         refSala.update({ p2: miNombre, o2: true });
-                        refSala.onDisconnect().cancel(); 
                         db.ref(`salas/${salaId}/${miRol === 'p1' ? 'o1' : 'o2'}`).onDisconnect().set(false);
                     } else {
                         alert("Sala llena");
@@ -124,8 +116,15 @@
 
             db.ref('salas/' + salaId).on('value', snap => {
                 const data = snap.val();
-                if (!data) {
-                    window.location.href = 'index.html';
+                
+                // DETECTOR DE SALIDA: Si alguien se desconecta (o1 o o2 es false)
+                if (!data || (data.activa && (data.o1 === false || data.o2 === false))) {
+                    if (!finalizado && data && data.p2 !== "Esperando...") {
+                        finalizado = true;
+                        procesarResultadoRanking(data);
+                    } else if (!data && !finalizado) {
+                         window.location.href = 'index.html';
+                    }
                     return;
                 }
 
@@ -137,18 +136,17 @@
                 const ambosOnline = data.o1 && data.o2;
                 document.getElementById('btn-add-p1').disabled = (miRol !== 'p1' || !ambosOnline || !data.activa);
                 document.getElementById('btn-add-p2').disabled = (miRol !== 'p2' || !ambosOnline || !data.activa);
-                
-                document.getElementById('card-p1').classList.toggle('mi-tarjeta', miRol === 'p1');
-                document.getElementById('card-p2').classList.toggle('mi-tarjeta', miRol === 'p2');
 
                 if (ambosOnline) {
                     document.getElementById('waiting-msg').innerText = "¡En combate! (FT " + data.ft + ")";
                     db.ref(`salas/${salaId}/${miRol === 'p1' ? 'o1' : 'o2'}`).onDisconnect().set(false);
                 }
 
-                // FUNCIÓN DE FINALIZACIÓN (FT)
                 if (data.activa && (data.s1 >= data.ft || data.s2 >= data.ft)) {
-                    finalizarBatalla(data);
+                    if (!finalizado) {
+                        finalizado = true;
+                        procesarResultadoRanking(data);
+                    }
                 }
             });
 
@@ -156,34 +154,59 @@
                 const msg = snap.val();
                 const div = document.createElement('div');
                 div.className = `msg ${msg.user === miNombre ? 'msg-mio' : 'msg-rival'}`;
-                
-                // Agregamos el nombre del usuario arriba del texto
                 div.innerHTML = `<span class="msg-name">${msg.user}</span>${msg.text}`;
-                
-                const box = document.getElementById('chat-messages');
-                box.appendChild(div);
-                box.scrollTop = box.scrollHeight;
+                document.getElementById('chat-messages').appendChild(div);
+                document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
             });
         }
 
-        function finalizarBatalla(data) {
-            if (finalizado) return;
-            finalizado = true;
+        function procesarResultadoRanking(data) {
+            // El jugador que sigue online es el encargado de limpiar y subir datos
+            const encargado = (data.o1 === false) ? data.p2 : data.p1;
             
-            const ganador = data.s1 >= data.ft ? data.p1 : data.p2;
-            document.getElementById('waiting-msg').innerText = "🏆 ¡GANADOR: " + ganador + "!";
-            document.getElementById('waiting-msg').style.color = "#FFD700";
-            document.getElementById('waiting-msg').style.fontSize = "1.2rem";
+            if (miNombre !== encargado) {
+                setTimeout(() => window.location.href = 'index.html', 2500);
+                return;
+            }
 
-            // Desactivar botones en la base de datos
-            db.ref('salas/' + salaId).update({ activa: false });
+            db.ref('/').once('value', snapshot => {
+                const base = snapshot.val();
+                let players = base.players || [];
+                let history = base.history || [];
 
-            // Borrar sala después de 5 segundos y salir
-            setTimeout(() => {
-                db.ref('salas/' + salaId).remove();
-                db.ref('chats/' + salaId).remove();
-                window.location.href = 'index.html';
-            }, 5000);
+                let p1 = players.find(p => p.name === data.p1);
+                let p2 = players.find(p => p.name === data.p2);
+
+                if (p1 && p2) {
+                    const s1 = data.s1;
+                    const s2 = data.s2;
+                    
+                    if (s1 !== s2) {
+                        const ganador = s1 > s2 ? p1 : p2;
+                        const perdedor = s1 > s2 ? p2 : p1;
+                        const K = 32;
+                        const prob = 1 / (1 + Math.pow(10, (perdedor.elo - ganador.elo) / 400));
+                        const puntos = Math.round(K * (1 - prob));
+
+                        ganador.elo += puntos;
+                        ganador.wins++;
+                        ganador.streak = (ganador.streak > 0) ? ganador.streak + 1 : 1;
+                        perdedor.elo = Math.max(0, perdedor.elo - puntos);
+                        perdedor.losses++;
+                        perdedor.streak = (perdedor.streak < 0) ? perdedor.streak - 1 : -1;
+                    }
+
+                    history.unshift({ p1: data.p1, p2: data.p2, s1: s1, s2: s2, date: Date.now() });
+                    
+                    // ACTUALIZAR RANKING Y BORRAR SALA DE FIREBASE
+                    db.ref('players').set(players);
+                    db.ref('history').set(history.slice(0, 100));
+                    db.ref('salas/' + salaId).remove();
+                    db.ref('chats/' + salaId).remove();
+                    
+                    setTimeout(() => window.location.href = 'index.html', 1500);
+                }
+            });
         }
 
         function sumarPunto(key) {
@@ -199,17 +222,9 @@
         }
 
         function abandonarSala() {
-            const refSala = db.ref('salas/' + salaId);
-            refSala.once('value', snap => {
-                const data = snap.val();
-                if (!data || data.p2 === "Esperando..." || !data.o2) {
-                    refSala.remove();
-                    db.ref('chats/' + salaId).remove();
-                } else {
-                    db.ref(`salas/${salaId}/${miRol === 'p1' ? 'o1' : 'o2'}`).set(false);
-                }
-                window.location.href = 'index.html';
-            });
+            if (confirm("¿Finalizar batalla? Se registrarán los puntos actuales.")) {
+                db.ref(`salas/${salaId}/${miRol === 'p1' ? 'o1' : 'o2'}`).set(false);
+            }
         }
     </script>
 </body>
