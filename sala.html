@@ -27,8 +27,8 @@
         .chat-input-area { display: flex; padding: 10px; background: #151515; gap: 5px; }
         .chat-input-area input { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #333; background: #000; color: #fff; }
         .btn-send { background: #FFD700; color: #000; padding: 0 15px; }
-        .status-msg { margin-top: 15px; padding: 10px; border-radius: 5px; display: none; font-weight: bold; }
-        .success { background: #1b4332; color: #74c69d; }
+        .status-msg { margin-top: 15px; padding: 10px; border-radius: 5px; display: none; font-weight: bold; text-align: center; }
+        .success { background: #1b4332; color: #74c69d; border: 1px solid #2d6a4f; }
         input[type="text"], select { padding: 12px; width: 80%; border-radius: 8px; margin-bottom: 15px; background: #000; color: #fff; border: 1px solid #333; }
     </style>
 </head>
@@ -80,7 +80,7 @@
             </div>
         </div>
 
-        <button onclick="location.href='index.html'" style="margin-top:15px; background:none; color:#555; font-size:0.8rem;">Abandonar Sala</button>
+        <button onclick="abandonarSala()" style="margin-top:15px; background:none; color:#555; font-size:0.8rem;">Abandonar Sala</button>
     </div>
 
     <script>
@@ -127,7 +127,8 @@
                     else if (data.p2 === "Esperando..." || data.p2 === miNombre) { miRol = "p2"; refSala.update({ p2: miNombre, o2: true }); }
                     else { alert("Sala llena"); location.reload(); return; }
                 }
-                db.ref(`salas/${salaId}/${miRol === 'p1' ? 'o1' : 'o2'}`).onDisconnect().set(false);
+                // Si alguien se desconecta accidentalmente, la sala se borra
+                refSala.onDisconnect().remove();
                 escuchar();
             });
         }
@@ -135,6 +136,14 @@
         function escuchar() {
             db.ref('salas/' + salaId).on('value', snap => {
                 const data = snap.val();
+                
+                // Si la sala es borrada por el otro usuario o desconexión
+                if (!data && !yaFinalizado) {
+                    alert("La sala ha sido cerrada o el oponente se desconectó.");
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
                 if (!data || yaFinalizado) return;
 
                 document.getElementById('name-p1').innerText = data.p1;
@@ -215,7 +224,6 @@
             let history = hSnap.val() || [];
             if (!Array.isArray(history)) history = Object.values(history);
             
-            // MODIFICACIÓN: Agregamos ID al resultado de la sala
             history.unshift({ 
                 id: Date.now().toString(), 
                 p1: data.p1, 
@@ -228,12 +236,25 @@
             await db.ref('players').set(players);
             await db.ref('history').set(history);
             
-            setTimeout(() => db.ref('chats/' + salaId).remove(), 10000);
-
+            // Cartel de Victoria
             const msgBox = document.getElementById('global-msg');
             msgBox.innerText = "🏆 ¡VICTORIA PARA " + winnerName.toUpperCase() + "!";
             msgBox.className = "status-msg success";
             msgBox.style.display = "block";
+
+            // Esperar 8 segundos para que vean el cartel y luego borrar sala/chat
+            setTimeout(async () => {
+                await db.ref('chats/' + salaId).remove();
+                await db.ref('salas/' + salaId).remove();
+                window.location.href = 'index.html';
+            }, 8000);
+        }
+
+        function abandonarSala() {
+            if(confirm("¿Estás seguro de que quieres abandonar la sala? Se eliminará.")) {
+                db.ref('salas/' + salaId).remove();
+                window.location.href = 'index.html';
+            }
         }
     </script>
 </body>
