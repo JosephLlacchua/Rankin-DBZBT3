@@ -23,33 +23,23 @@
         .confirmado-status { color: #4CAF50; font-size: 0.8rem; margin-top: 5px; display: none; }
         .status-msg { margin-top: 20px; padding: 15px; border-radius: 5px; font-weight: bold; display: none; }
         .success { background: #1b4332; color: #74c69d; display: block; }
-        .error-msg { background: #431b1b; color: #c67474; display: block; margin-top:10px; padding:10px; border-radius:5px; }
-        input, select { padding: 10px; width: 60%; border-radius: 5px; border: 1px solid #333; background: #000; color: white; margin-bottom: 10px; }
+        input#room-name { padding: 10px; width: 60%; border-radius: 5px; border: 1px solid #333; background: #000; color: white; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
     <div class="container" id="room-selector">
-        <h2>⚔️ Crear o Entrar a Sala</h2>
-        <input type="text" id="room-name" placeholder="Nombre de la sala (ej: final-torneo)">
-        <br>
-        <label>Formato de Batalla:</label><br>
-        <select id="ft-limit">
-            <option value="3">First To 3 (FT3)</option>
-            <option value="5">First To 5 (FT5)</option>
-            <option value="7">First To 7 (FT7)</option>
-            <option value="10">First To 10 (FT10)</option>
-        </select>
-        <br>
+        <h2>⚔️ Entrar a una Sala</h2>
+        <p style="color: #888;">Escribe el nombre de la sala para jugar con tu rival</p>
+        <input type="text" id="room-name" placeholder="Ejemplo: final-torneo">
         <button onclick="unirseASala()" style="background: #FFD700; color: black; padding: 12px; width: 65%;">ENTRAR A BATALLAR</button>
         <p><a href="index.html" style="color: #888; text-decoration: none;">← Volver al Ranking</a></p>
     </div>
 
-    <div class="container" id="battle-room" style="display: none;">
+    <div class="container hidden" id="battle-room" style="display: none;">
         <div class="sala-header">
             <h3 id="display-room-id">SALA: -</h3>
-            <div id="ft-indicator" style="color: #FFD700; font-weight: bold; margin-bottom: 5px;">FT -</div>
-            <span id="mi-nombre-display" style="color: #888; font-size: 0.9rem;"></span>
+            <span id="mi-nombre-display" style="color: #FFD700;"></span>
         </div>
 
         <div class="duelo-grid">
@@ -57,6 +47,7 @@
                 <h4 id="name-p1">Esperando...</h4>
                 <div class="score" id="score-p1">0</div>
                 <button id="btn-add-p1" class="btn-puntos" onclick="sumarPunto('s1')">+</button>
+                <button id="btn-conf-p1" class="btn-confirm" onclick="confirmarResultado(1)">CONFIRMAR</button>
                 <div id="msg-conf-p1" class="confirmado-status">✓ LISTO</div>
             </div>
 
@@ -66,6 +57,7 @@
                 <h4 id="name-p2">Esperando...</h4>
                 <div class="score" id="score-p2">0</div>
                 <button id="btn-add-p2" class="btn-puntos" onclick="sumarPunto('s2')">+</button>
+                <button id="btn-conf-p2" class="btn-confirm" onclick="confirmarResultado(2)">CONFIRMAR</button>
                 <div id="msg-conf-p2" class="confirmado-status">✓ LISTO</div>
             </div>
         </div>
@@ -74,6 +66,7 @@
     </div>
 
     <script>
+        // CONFIGURACIÓN FIREBASE (Usa la tuya)
         const firebaseConfig = {
             apiKey: "AIzaSyD_eT9VlLk_b1toTcva8w9NwU-FGjrEtEI",
             authDomain: "ranking-dbz-bt3.firebaseapp.com",
@@ -88,8 +81,7 @@
 
         let miNombre = localStorage.getItem("nombre_jugador");
         let salaId = "";
-        let miRol = ""; 
-        let yaFinalizado = false;
+        let miRol = ""; // p1 o p2
 
         if (!miNombre) {
             alert("Debes identificarte primero.");
@@ -98,47 +90,33 @@
 
         function unirseASala() {
             salaId = document.getElementById('room-name').value.trim().toLowerCase();
-            const ftVal = parseInt(document.getElementById('ft-limit').value);
             if (!salaId) return alert("Escribe un nombre de sala");
 
             document.getElementById('room-selector').style.display = "none";
             document.getElementById('battle-room').style.display = "block";
             document.getElementById('display-room-id').innerText = "SALA: " + salaId.toUpperCase();
-            document.getElementById('mi-nombre-display').innerText = "Jugador: " + miNombre;
+            document.getElementById('mi-nombre-display').innerText = "Estás jugando como: " + miNombre;
 
-            conectarFirebase(ftVal);
+            conectarFirebase();
         }
 
-        function conectarFirebase(ftLimit) {
+        function conectarFirebase() {
             const refSala = db.ref('salas/' + salaId);
 
             refSala.once('value', snap => {
                 const data = snap.val();
                 if (!data) {
                     miRol = "p1";
-                    refSala.set({ 
-                        p1: miNombre, s1: 0, o1: true, 
-                        p2: "Esperando...", s2: 0, o2: false, 
-                        ft: ftLimit, activa: true 
-                    });
+                    refSala.set({ p1: miNombre, s1: 0, c1: false, p2: "Esperando...", s2: 0, c2: false, activa: true });
+                } else if (data.p1 !== miNombre && (data.p2 === "Esperando..." || data.p2 === miNombre)) {
+                    miRol = "p2";
+                    refSala.update({ p2: miNombre });
+                } else if (data.p1 === miNombre) {
+                    miRol = "p1";
                 } else {
-                    if (data.p1 === miNombre) {
-                        miRol = "p1";
-                        refSala.update({ o1: true });
-                    } else if (data.p2 === "Esperando..." || data.p2 === miNombre) {
-                        miRol = "p2";
-                        refSala.update({ p2: miNombre, o2: true });
-                    } else {
-                        alert("Sala llena.");
-                        location.reload();
-                        return;
-                    }
+                    alert("Sala llena.");
+                    location.reload();
                 }
-                
-                // Configurar presencia (Modo Estricto)
-                const presRef = db.ref(`salas/${salaId}/${miRol === 'p1' ? 'o1' : 'o2'}`);
-                presRef.onDisconnect().set(false);
-                
                 escucharCambios();
             });
         }
@@ -146,40 +124,31 @@
         function escucharCambios() {
             db.ref('salas/' + salaId).on('value', snap => {
                 const data = snap.val();
-                if (!data || yaFinalizado) return;
+                if (!data) return;
 
+                // Actualizar nombres y puntos
                 document.getElementById('name-p1').innerText = data.p1;
                 document.getElementById('name-p2').innerText = data.p2;
                 document.getElementById('score-p1').innerText = data.s1;
                 document.getElementById('score-p2').innerText = data.s2;
-                document.getElementById('ft-indicator').innerText = "FIRST TO " + (data.ft || 3);
 
+                // Mostrar quién confirmó
+                document.getElementById('msg-conf-p1').style.display = data.c1 ? "block" : "none";
+                document.getElementById('msg-conf-p2').style.display = data.c2 ? "block" : "none";
+
+                // Resaltar mi tarjeta
                 document.getElementById('card-p1').classList.toggle('mi-tarjeta', miRol === 'p1');
                 document.getElementById('card-p2').classList.toggle('mi-tarjeta', miRol === 'p2');
 
-                // LÓGICA DE BOTONES: Solo activos si ambos están conectados
-                const ambosOnline = data.o1 && data.o2;
-                document.getElementById('btn-add-p1').disabled = (miRol !== 'p1' || !ambosOnline || !data.activa);
-                document.getElementById('btn-add-p2').disabled = (miRol !== 'p2' || !ambosOnline || !data.activa);
+                // Habilitar/Deshabilitar mis botones
+                document.getElementById('btn-add-p1').disabled = (miRol !== 'p1' || data.c1 || !data.activa);
+                document.getElementById('btn-add-p2').disabled = (miRol !== 'p2' || data.c2 || !data.activa);
+                document.getElementById('btn-conf-p1').disabled = (miRol !== 'p1' || data.c1 || !data.activa);
+                document.getElementById('btn-conf-p2').disabled = (miRol !== 'p2' || data.c2 || !data.activa);
 
-                if(!ambosOnline && data.p2 !== "Esperando...") {
-                    const msg = document.getElementById('global-msg');
-                    msg.innerText = "⚠️ RIVAL DESCONECTADO. ESPERANDO...";
-                    msg.className = "status-msg error-msg";
-                    msg.style.display = "block";
-                    
-                    // AUTO-GUARDADO POR DESCONEXIÓN (Si ya hay puntos)
-                    if((data.s1 > 0 || data.s2 > 0) && data.activa) {
-                        registrarEnHistorial(data, "Finalizado por Desconexión");
-                    }
-                } else {
-                    document.getElementById('global-msg').style.display = "none";
-                }
-
-                // FINALIZAR POR LÍMITE DE PUNTOS (FT)
-                const limite = data.ft || 3;
-                if ((data.s1 >= limite || data.s2 >= limite) && data.activa) {
-                    registrarEnHistorial(data, "Victoria FT " + limite);
+                // FINALIZAR SI AMBOS CONFIRMAN
+                if (data.c1 && data.c2 && data.activa) {
+                    registrarEnHistorial(data);
                 }
             });
         }
@@ -188,29 +157,29 @@
             db.ref('salas/' + salaId).child(jugadorKey).transaction(c => (c || 0) + 1);
         }
 
-        function registrarEnHistorial(data, motivo) {
-            yaFinalizado = true;
+        function confirmarResultado(num) {
+            db.ref('salas/' + salaId).update({ ['c' + num]: true });
+        }
+
+        function registrarEnHistorial(data) {
             db.ref('salas/' + salaId).update({ activa: false });
             
             const matchData = {
+                id: Date.now().toString(),
                 p1: data.p1,
                 p2: data.p2,
                 s1: data.s1,
                 s2: data.s2,
-                fecha: new Date().toLocaleString(),
-                tipo: motivo
+                fecha: new Date().toLocaleString()
             };
 
             db.ref('history').once('value', snap => {
                 let history = snap.val() || [];
-                if (!Array.isArray(history)) history = Object.values(history); // Compatibilidad
                 history.unshift(matchData);
-                
                 db.ref('history').set(history).then(() => {
                     const msg = document.getElementById('global-msg');
-                    msg.innerText = "🏆 " + motivo + " - Marcador: " + data.s1 + " a " + data.s2;
+                    msg.innerText = "🏆 ¡DUELO FINALIZADO! Resultado cargado al Ranking.";
                     msg.className = "status-msg success";
-                    msg.style.display = "block";
                 });
             });
         }
