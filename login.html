@@ -6,30 +6,33 @@
     <style>
         body { font-family: 'Arial', sans-serif; background: #0d0d0d; color: white; text-align: center; padding-top: 50px; }
         .login-card { background: #1a1a1a; padding: 30px; border-radius: 15px; display: inline-block; border: 1px solid #FFD700; width: 300px; }
-        select, button { width: 100%; padding: 12px; margin-top: 20px; border-radius: 5px; border: none; font-size: 1rem; }
+        select, button { width: 100%; padding: 12px; margin-top: 20px; border-radius: 5px; border: none; font-size: 1rem; box-sizing: border-box; }
         button { background: #FFD700; color: black; font-weight: bold; cursor: pointer; }
         button:hover { background: #ffcc00; }
-        .instruccion { color: #888; font-size: 0.9rem; }
+        .instruccion { color: #888; font-size: 0.9rem; margin-bottom: 10px; }
+        .footer-link { margin-top: 20px; display: block; color: #555; text-decoration: none; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <div class="login-card">
         <h2>Identifícate</h2>
-        <p class="instruccion">Selecciona tu nombre de la lista de jugadores registrados:</p>
+        <p class="instruccion">Selecciona tu nombre de la lista:</p>
         
         <select id="listaJugadores">
             <option>Cargando jugadores...</option>
         </select>
 
         <button onclick="guardarSesion()">Entrar al Sistema</button>
+
+        <a href="registro.html" class="footer-link">¿No tienes cuenta? Regístrate aquí</a>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
     <script>
-        // USA TU MISMA CONFIGURACIÓN DE FIREBASE AQUÍ
+        // CONFIGURACIÓN DE TU FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyD_eT9VlLk_b1toTcva8w9NwU-FGjrEtEI",
             authDomain: "ranking-dbz-bt3.firebaseapp.com",
@@ -42,20 +45,47 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Cargar jugadores desde tu base de datos actual
+        // Cargar jugadores desde Firebase para el menú desplegable
         db.ref('players').on('value', snap => {
-            const players = snap.val() || [];
+            const players = snap.val();
             const select = document.getElementById("listaJugadores");
-            select.innerHTML = players.map(p => `<option value="${p.name}">${p.name}</option>`).join("");
+            
+            if (players) {
+                // Convertimos el objeto en array y ordenamos por nombre
+                const listaHtm = Object.values(players)
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map(p => `<option value="${p.name}">${p.name}</option>`)
+                    .join("");
+                select.innerHTML = listaHtm;
+            } else {
+                select.innerHTML = "<option>Sin jugadores</option>";
+            }
         });
 
         function guardarSesion() {
-            const nombre = document.getElementById("listaJugadores").value;
-            // Guardamos el nombre en la memoria del navegador
-            localStorage.setItem("nombre_jugador", nombre);
-            alert("¡Bienvenido, " + nombre + "!");
-            // Redirigir al ranking o a la sala
-            window.location.href = 'index.html'; 
+            const nombreSeleccionado = document.getElementById("listaJugadores").value;
+            
+            // Pedimos la contraseña larga mediante un prompt
+            const passwordIngresada = prompt("Introduce tu contraseña para acceder a " + nombreSeleccionado + ":");
+
+            if (!passwordIngresada) return; // Si cancela, no hacemos nada
+
+            db.ref('players').once('value', snap => {
+                const players = snap.val();
+                
+                // Buscamos el jugador que coincida con el nombre y verificamos la contraseña (pin)
+                const jugadorData = Object.values(players).find(p => p.name === nombreSeleccionado);
+
+                if (jugadorData && jugadorData.pin === passwordIngresada) {
+                    // Si coincide, guardamos en el navegador
+                    localStorage.setItem("nombre_jugador", nombreSeleccionado);
+                    alert("¡Bienvenido, " + nombreSeleccionado + "!");
+                    window.location.href = 'index.html'; 
+                } else {
+                    // Si no coincide
+                    alert("❌ Contraseña incorrecta. Verifica mayúsculas y minúsculas.");
+                }
+            });
         }
     </script>
 </body>
