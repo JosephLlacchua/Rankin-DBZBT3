@@ -2,71 +2,48 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sala de Batalla - DBZ BT3</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <title>Sala de Duelo Oficial - DBZ BT3</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0d0d0d; color: white; text-align: center; margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: #1a1a1a; padding: 20px; border-radius: 15px; border: 1px solid #333; }
-        .sala-header { margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .duelo-grid { display: flex; justify-content: space-around; align-items: center; margin-top: 20px; }
-        .player-card { flex: 1; padding: 15px; border-radius: 10px; background: #252525; margin: 0 10px; border: 2px solid transparent; }
-        .mi-tarjeta { border-color: #FFD700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
-        .score { font-size: 4rem; font-weight: bold; color: #FFD700; margin: 10px 0; }
-        .vs { font-size: 1.5rem; font-weight: bold; color: #555; }
-        button { cursor: pointer; border: none; border-radius: 5px; font-weight: bold; transition: 0.3s; }
-        .btn-puntos { width: 100%; padding: 15px; font-size: 1.5rem; background: #333; color: white; margin-bottom: 10px; }
-        .btn-puntos:hover:not(:disabled) { background: #444; }
-        .btn-confirm { width: 100%; padding: 10px; background: #4CAF50; color: white; }
-        .btn-confirm:disabled { background: #2e4a2e; color: #888; cursor: not-allowed; }
-        .confirmado-status { color: #4CAF50; font-size: 0.8rem; margin-top: 5px; display: none; }
-        .status-msg { margin-top: 20px; padding: 15px; border-radius: 5px; font-weight: bold; display: none; }
-        .success { background: #1b4332; color: #74c69d; display: block; }
-        input#room-name { padding: 10px; width: 60%; border-radius: 5px; border: 1px solid #333; background: #000; color: white; margin-bottom: 10px; }
+        body { font-family: 'Arial', sans-serif; background: #0d0d0d; color: white; text-align: center; margin: 0; padding: 20px; }
+        .match-container { background: #1a1a1a; border: 2px solid #FFD700; border-radius: 15px; display: inline-block; padding: 25px; width: 95%; max-width: 650px; box-shadow: 0 0 25px rgba(255, 215, 0, 0.3); }
+        .scoreboard { display: flex; justify-content: space-around; align-items: center; margin: 30px 0; font-size: 4rem; font-weight: bold; }
+        .player-box { width: 45%; }
+        .player-name { font-size: 1.4rem; color: #FFD700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; overflow: hidden; text-overflow: ellipsis; }
+        .ft-label { background: #FFD700; color: black; padding: 6px 20px; border-radius: 20px; font-size: 1.1rem; font-weight: bold; display: inline-block; }
+        .btn-score { background: #FFD700; color: black; border: none; padding: 18px; font-size: 1.1rem; font-weight: bold; cursor: pointer; border-radius: 10px; width: 100%; transition: 0.2s; }
+        .btn-score:hover:not(:disabled) { transform: scale(1.05); background: #fff; }
+        .btn-score:disabled { background: #333; color: #666; cursor: not-allowed; }
+        .status-msg { margin-top: 20px; font-size: 1.1rem; font-weight: bold; padding: 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-    <div class="container" id="room-selector">
-        <h2>⚔️ Entrar a una Sala</h2>
-        <p style="color: #888;">Escribe el nombre de la sala para jugar con tu rival</p>
-        <input type="text" id="room-name" placeholder="Ejemplo: final-torneo">
-        <button onclick="unirseASala()" style="background: #FFD700; color: black; padding: 12px; width: 65%;">ENTRAR A BATALLAR</button>
-        <p><a href="index.html" style="color: #888; text-decoration: none;">← Volver al Ranking</a></p>
-    </div>
-
-    <div class="container hidden" id="battle-room" style="display: none;">
-        <div class="sala-header">
-            <h3 id="display-room-id">SALA: -</h3>
-            <span id="mi-nombre-display" style="color: #FFD700;"></span>
-        </div>
-
-        <div class="duelo-grid">
-            <div id="card-p1" class="player-card">
-                <h4 id="name-p1">Esperando...</h4>
-                <div class="score" id="score-p1">0</div>
-                <button id="btn-add-p1" class="btn-puntos" onclick="sumarPunto('s1')">+</button>
-                <button id="btn-conf-p1" class="btn-confirm" onclick="confirmarResultado(1)">CONFIRMAR</button>
-                <div id="msg-conf-p1" class="confirmado-status">✓ LISTO</div>
+    <div class="match-container">
+        <div id="ftDisplay" class="ft-label">MODO: FT --</div>
+        
+        <div class="scoreboard">
+            <div class="player-box">
+                <div id="nameP1" class="player-name">---</div>
+                <div id="scoreP1">0</div>
+                <button id="btnP1" class="btn-score" onclick="sumarPunto(1)" disabled>+ PUNTO P1</button>
             </div>
-
-            <div class="vs">VS</div>
-
-            <div id="card-p2" class="player-card">
-                <h4 id="name-p2">Esperando...</h4>
-                <div class="score" id="score-p2">0</div>
-                <button id="btn-add-p2" class="btn-puntos" onclick="sumarPunto('s2')">+</button>
-                <button id="btn-conf-p2" class="btn-confirm" onclick="confirmarResultado(2)">CONFIRMAR</button>
-                <div id="msg-conf-p2" class="confirmado-status">✓ LISTO</div>
+            
+            <div style="color: #444; font-size: 1.5rem;">VS</div>
+            
+            <div class="player-box">
+                <div id="nameP2" class="player-name">---</div>
+                <div id="scoreP2">0</div>
+                <button id="btnP2" class="btn-score" onclick="sumarPunto(2)" disabled>+ PUNTO P2</button>
             </div>
         </div>
 
-        <div id="global-msg" class="status-msg"></div>
+        <div id="statusMsg" class="status-msg">Iniciando conexión...</div>
     </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
     <script>
-        // CONFIGURACIÓN FIREBASE (Usa la tuya)
         const firebaseConfig = {
             apiKey: "AIzaSyD_eT9VlLk_b1toTcva8w9NwU-FGjrEtEI",
             authDomain: "ranking-dbz-bt3.firebaseapp.com",
@@ -79,108 +56,106 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let miNombre = localStorage.getItem("nombre_jugador");
-        let salaId = "";
-        let miRol = ""; // p1 o p2
+        const params = new URLSearchParams(window.location.search);
+        const roomID = params.get('id');
+        const miNombre = localStorage.getItem("nombre_jugador");
 
-        if (!miNombre) {
-            alert("Debes identificarte primero.");
-            window.location.href = 'login.html';
+        if (!roomID || !miNombre) {
+            alert("Acceso denegado. Debes iniciar sesión.");
+            window.location.href = 'index.html';
         }
 
-        function unirseASala() {
-            salaId = document.getElementById('room-name').value.trim().toLowerCase();
-            if (!salaId) return alert("Escribe un nombre de sala");
+        const roomRef = db.ref(`rooms/${roomID}`);
+        let soyP1 = false, soyP2 = false;
+        let yaGuardado = false;
 
-            document.getElementById('room-selector').style.display = "none";
-            document.getElementById('battle-room').style.display = "block";
-            document.getElementById('display-room-id').innerText = "SALA: " + salaId.toUpperCase();
-            document.getElementById('mi-nombre-display').innerText = "Estás jugando como: " + miNombre;
+        // 1. GESTIÓN DE PRESENCIA (MODO ESTRICTO)
+        roomRef.once('value', snap => {
+            const sala = snap.val();
+            if (!sala) return;
 
-            conectarFirebase();
-        }
+            if (sala.jugador_1 === miNombre) {
+                soyP1 = true;
+                db.ref(`rooms/${roomID}/onlineP1`).set(true);
+                db.ref(`rooms/${roomID}/onlineP1`).onDisconnect().set(false);
+            } else if (!sala.jugador_2 || sala.jugador_2 === miNombre) {
+                soyP2 = true;
+                roomRef.update({ jugador_2: miNombre, onlineP2: true, estado: "jugando" });
+                db.ref(`rooms/${roomID}/onlineP2`).onDisconnect().set(false);
+            }
+        });
 
-        function conectarFirebase() {
-            const refSala = db.ref('salas/' + salaId);
+        // 2. ESCUCHA EN TIEMPO REAL Y AUTO-GUARDADO
+        roomRef.on('value', snap => {
+            const sala = snap.val();
+            if (!sala) return;
 
-            refSala.once('value', snap => {
-                const data = snap.val();
-                if (!data) {
-                    miRol = "p1";
-                    refSala.set({ p1: miNombre, s1: 0, c1: false, p2: "Esperando...", s2: 0, c2: false, activa: true });
-                } else if (data.p1 !== miNombre && (data.p2 === "Esperando..." || data.p2 === miNombre)) {
-                    miRol = "p2";
-                    refSala.update({ p2: miNombre });
-                } else if (data.p1 === miNombre) {
-                    miRol = "p1";
-                } else {
-                    alert("Sala llena.");
-                    location.reload();
+            const p1 = sala.puntosP1 || 0;
+            const p2 = sala.puntosP2 || 0;
+            const limite = sala.limiteFT || 3;
+
+            // Actualizar Interfaz
+            document.getElementById("ftDisplay").innerText = `MODO: FT ${limite}`;
+            document.getElementById("nameP1").innerText = sala.jugador_1 || "---";
+            document.getElementById("nameP2").innerText = sala.jugador_2 || "Esperando...";
+            document.getElementById("scoreP1").innerText = p1;
+            document.getElementById("scoreP2").innerText = p2;
+
+            // LÓGICA DE DESCONEXIÓN (MODO ESTRICTO)
+            if (sala.estado === "jugando" && (!sala.onlineP1 || !sala.onlineP2)) {
+                if ((p1 > 0 || p2 > 0) && !yaGuardado) {
+                    yaGuardado = true;
+                    guardarEnHistorial(sala, "Finalizado por Desconexión");
                 }
-                escucharCambios();
+                document.getElementById("statusMsg").innerText = "⚠️ CONEXIÓN PERDIDA";
+                document.getElementById("statusMsg").style.color = "#ff5252";
+            } else if (sala.estado === "terminado") {
+                document.getElementById("statusMsg").innerText = "🏆 DUELO FINALIZADO";
+                document.getElementById("statusMsg").style.color = "#FFD700";
+            } else {
+                document.getElementById("statusMsg").innerText = "⚔️ ¡A LUCHAR!";
+                document.getElementById("statusMsg").style.color = "#03a9f4";
+            }
+
+            // Habilitar botones solo si ambos están online y el duelo sigue activo
+            const activo = sala.onlineP1 && sala.onlineP2 && sala.estado === "jugando";
+            document.getElementById("btnP1").disabled = !(soyP1 && activo);
+            document.getElementById("btnP2").disabled = !(soyP2 && activo);
+
+            // Verificar si alguien llegó al FT
+            if ((p1 >= limite || p2 >= limite) && !yaGuardado) {
+                yaGuardado = true;
+                guardarEnHistorial(sala, "Finalizado (FT)");
+            }
+        });
+
+        function sumarPunto(jugador) {
+            roomRef.once('value', snap => {
+                const sala = snap.val();
+                let pts1 = sala.puntosP1 || 0;
+                let pts2 = sala.puntosP2 || 0;
+
+                if (jugador === 1) pts1++;
+                else pts2++;
+
+                roomRef.update({ puntosP1: pts1, puntosP2: pts2 });
             });
         }
 
-        function escucharCambios() {
-            db.ref('salas/' + salaId).on('value', snap => {
-                const data = snap.val();
-                if (!data) return;
-
-                // Actualizar nombres y puntos
-                document.getElementById('name-p1').innerText = data.p1;
-                document.getElementById('name-p2').innerText = data.p2;
-                document.getElementById('score-p1').innerText = data.s1;
-                document.getElementById('score-p2').innerText = data.s2;
-
-                // Mostrar quién confirmó
-                document.getElementById('msg-conf-p1').style.display = data.c1 ? "block" : "none";
-                document.getElementById('msg-conf-p2').style.display = data.c2 ? "block" : "none";
-
-                // Resaltar mi tarjeta
-                document.getElementById('card-p1').classList.toggle('mi-tarjeta', miRol === 'p1');
-                document.getElementById('card-p2').classList.toggle('mi-tarjeta', miRol === 'p2');
-
-                // Habilitar/Deshabilitar mis botones
-                document.getElementById('btn-add-p1').disabled = (miRol !== 'p1' || data.c1 || !data.activa);
-                document.getElementById('btn-add-p2').disabled = (miRol !== 'p2' || data.c2 || !data.activa);
-                document.getElementById('btn-conf-p1').disabled = (miRol !== 'p1' || data.c1 || !data.activa);
-                document.getElementById('btn-conf-p2').disabled = (miRol !== 'p2' || data.c2 || !data.activa);
-
-                // FINALIZAR SI AMBOS CONFIRMAN
-                if (data.c1 && data.c2 && data.activa) {
-                    registrarEnHistorial(data);
-                }
-            });
-        }
-
-        function sumarPunto(jugadorKey) {
-            db.ref('salas/' + salaId).child(jugadorKey).transaction(c => (c || 0) + 1);
-        }
-
-        function confirmarResultado(num) {
-            db.ref('salas/' + salaId).update({ ['c' + num]: true });
-        }
-
-        function registrarEnHistorial(data) {
-            db.ref('salas/' + salaId).update({ activa: false });
-            
-            const matchData = {
-                id: Date.now().toString(),
-                p1: data.p1,
-                p2: data.p2,
-                s1: data.s1,
-                s2: data.s2,
-                fecha: new Date().toLocaleString()
+        function guardarEnHistorial(sala, motivo) {
+            const dataFinal = {
+                p1: sala.jugador_1,
+                p2: sala.jugador_2 || "Desconocido",
+                s1: sala.puntosP1 || 0,
+                s2: sala.puntosP2 || 0,
+                fecha: Date.now(),
+                nota: motivo
             };
 
-            db.ref('history').once('value', snap => {
-                let history = snap.val() || [];
-                history.unshift(matchData);
-                db.ref('history').set(history).then(() => {
-                    const msg = document.getElementById('global-msg');
-                    msg.innerText = "🏆 ¡DUELO FINALIZADO! Resultado cargado al Ranking.";
-                    msg.className = "status-msg success";
-                });
+            // Enviar a la base de datos central de historial
+            db.ref('history').push(dataFinal).then(() => {
+                roomRef.update({ estado: "terminado" });
+                alert(`Resultado guardado: ${dataFinal.s1} - ${dataFinal.s2} (${motivo})`);
             });
         }
     </script>
