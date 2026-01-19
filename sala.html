@@ -270,14 +270,32 @@
         }
 
         /**
-         * FUNCIÓN: abandonarSala
-         * Se activa al presionar el botón de salir. Marca al jugador como offline.
-         */
-        function abandonarSala() {
-            if(confirm("¿Quieres finalizar la batalla ahora?")) {
+ * FUNCIÓN: abandonarSala
+ * Permite salir de la sala. Si el jugador está solo, borra la sala y sale.
+ * Si hay rival, inicia el proceso de finalización técnica.
+ */
+function abandonarSala() {
+    if (confirm("¿Quieres finalizar la batalla ahora?")) {
+        const refSala = db.ref('salas/' + salaId);
+        
+        refSala.once('value', snap => {
+            const data = snap.val();
+            if (!data) return;
+
+            const estaSolo = (data.p2 === "Esperando...");
+
+            if (estaSolo) {
+                // Si estás solo: Limpiar base de datos y salir de inmediato
+                refSala.remove().then(() => {
+                    window.location.href = 'index.html';
+                });
+            } else {
+                // Si hay rival: Marcar desconexión para que el sistema procese el final
                 db.ref(`salas/${salaId}/${miRol === 'p1' ? 'o1' : 'o2'}`).set(false);
             }
-        }
+        });
+    }
+}
 
         /**
          * FUNCIÓN: copiarID
