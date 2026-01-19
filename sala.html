@@ -2,70 +2,80 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sala de Batalla - DBZ BT3</title>
+    <title>Sala de Batalla Persistente - DBZ BT3</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0d0d0d; color: white; margin: 0; padding: 10px; text-align: center; }
         .container { max-width: 500px; margin: auto; background: #1a1a1a; padding: 20px; border-radius: 15px; border: 1px solid #333; }
-        .player-card { flex: 1; padding: 15px; border-radius: 10px; background: #252525; margin: 5px; border: 2px solid transparent; }
-        .mi-tarjeta { border-color: #FFD700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
-        .score { font-size: 3rem; font-weight: bold; color: #FFD700; }
-        button { cursor: pointer; border: none; border-radius: 5px; font-weight: bold; padding: 10px; transition: 0.2s; }
-        input, select { padding: 12px; width: 80%; border-radius: 8px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid #333; }
+        .player-card { flex: 1; padding: 15px; border-radius: 10px; background: #252525; margin: 5px; border: 2px solid #444; }
+        .score { font-size: 3.5rem; font-weight: bold; color: #FFD700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+        button { cursor: pointer; border: none; border-radius: 5px; font-weight: bold; padding: 12px; transition: 0.2s; }
+        input, select { padding: 12px; width: 85%; border-radius: 8px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid #333; text-align: center; }
         .btn-entrar { background: #FFD700; color: #000; width: 85%; font-size: 1.1rem; }
-        .btn-puntos { width: 100%; font-size: 1.5rem; background: #333; color: white; margin-top: 10px; }
-        .btn-puntos:disabled { opacity: 0.2; cursor: not-allowed; }
-        .chat-area { margin-top: 20px; background: #000; border-radius: 10px; border: 1px solid #333; overflow: hidden; }
-        #chat-messages { height: 150px; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; text-align: left; }
-        .msg { padding: 8px 12px; border-radius: 8px; max-width: 85%; font-size: 0.9rem; line-height: 1.2; position: relative; }
-        .msg-name { font-size: 0.7rem; font-weight: bold; margin-bottom: 2px; display: block; opacity: 0.8; }
-        .msg-mio { align-self: flex-end; background: #FFD700; color: #000; }
-        .msg-rival { align-self: flex-start; background: #333; color: #fff; }
-        .chat-input-area { display: flex; padding: 8px; background: #151515; gap: 5px; }
-        .chat-input-area input { flex: 1; margin: 0; padding: 8px; }
+        .btn-puntos { width: 100%; font-size: 1.2rem; background: #333; color: white; margin-top: 10px; border: 1px solid #555; }
+        .btn-puntos:active { background: #FFD700; color: black; }
+        .btn-puntos:disabled { opacity: 0.2; }
+        
+        #winner-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center; flex-direction: column;
+        }
+        .winner-box { background: #222; padding: 30px; border-radius: 20px; border: 2px solid #FFD700; }
     </style>
 </head>
 <body>
 
+    <div id="winner-overlay">
+        <div class="winner-box">
+            <h2 id="res-title" style="color: #FFD700;">🏆 RESULTADO FINAL</h2>
+            <h1 id="winner-name">-</h1>
+            <p id="winner-msg">Actualizando el Ranking Global...</p>
+        </div>
+    </div>
+
     <div id="room-selector" class="container">
-        <h2>⚔️ UNIRSE A BATALLA</h2>
-        <input type="text" id="room-name" placeholder="Nombre de la sala">
-        <select id="ft-limit">
-            <option value="3">First To 3</option>
-            <option value="5">First To 5</option>
-            <option value="10">First To 10</option>
-        </select>
-        <button class="btn-entrar" onclick="unirseASala()">ENTRAR</button>
+        <h2>⚔️ PANEL DE BATALLA</h2>
+        <div style="border: 1px solid #333; padding: 15px; border-radius: 10px; margin-bottom: 20px; background: #222;">
+            <p>Configurar Batalla (Solo Host)</p>
+            <select id="ft-limit">
+                <option value="3">First To 3</option>
+                <option value="5">First To 5</option>
+                <option value="10">First To 10</option>
+            </select>
+            <button class="btn-entrar" onclick="crearSala()">CREAR NUEVA SALA</button>
+        </div>
+        <input type="text" id="room-id-input" placeholder="Pegar ID de Sala">
+        <button style="background:#444; color:white; width:85%;" onclick="unirseASala()">UNIRSE A BATALLA</button>
     </div>
 
     <div id="battle-room" class="container" style="display: none;">
-        <h3 id="display-room-id" style="color:#FFD700; margin-top: 0;">-</h3>
-        <div style="display: flex; justify-content: space-between;">
-            <div id="card-p1" class="player-card">
-                <h4 id="name-p1">...</h4>
+        <small style="color:#888">ID DE SALA (Toca para copiar):</small>
+        <h3 id="display-room-id" style="color:#FFD700; cursor:pointer; margin: 5px 0 20px 0;" onclick="copiarID()">-</h3>
+        
+        <div style="display: flex; justify-content: space-between; gap: 10px;">
+            <div class="player-card">
+                <h4 id="name-p1" style="margin:0; color:#aaa;">P1</h4>
                 <div class="score" id="score-p1">0</div>
-                <button id="btn-add-p1" class="btn-puntos" onclick="sumarPunto('s1')">+</button>
+                <button id="add-p1" class="btn-puntos" onclick="sumarPunto('s1')">+</button>
             </div>
-            <div id="card-p2" class="player-card">
-                <h4 id="name-p2">...</h4>
+            <div class="player-card">
+                <h4 id="name-p2" style="margin:0; color:#aaa;">P2</h4>
                 <div class="score" id="score-p2">0</div>
-                <button id="btn-add-p2" class="btn-puntos" onclick="sumarPunto('s2')">+</button>
+                <button id="add-p2" class="btn-puntos" onclick="sumarPunto('s2')">+</button>
             </div>
         </div>
-        <p id="waiting-msg" style="color: #666; font-size: 0.8rem; margin: 10px 0;">Esperando oponente...</p>
-        <div class="chat-area">
-            <div id="chat-messages"></div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Escribe..." onkeypress="if(event.key==='Enter') enviarMensaje()">
-                <button onclick="enviarMensaje()" style="background:#FFD700; padding: 0 15px;">➤</button>
-            </div>
+
+        <div id="status-bar" style="background:#000; padding:10px; border-radius:8px; margin-top:15px; border:1px solid #333;">
+            <p id="status-msg" style="margin:0; font-size:0.9rem;">Esperando oponente...</p>
         </div>
-        <button onclick="abandonarSala()" style="background: none; color: #ff4444; text-decoration: underline; margin-top: 15px; font-size: 0.8rem;">ABANDONAR (FINALIZAR AQUÍ)</button>
+        
+        <button onclick="abandonarSala()" style="color: #ff4444; background:none; text-decoration:underline; margin-top:20px; font-size:0.8rem;">ABANDONAR / FINALIZAR PELEA</button>
     </div>
 
     <script>
+        // Configuración idéntica a la tuya
         const firebaseConfig = {
             apiKey: "AIzaSyD_eT9VlLk_b1toTcva8w9NwU-FGjrEtEI",
             authDomain: "ranking-dbz-bt3.firebaseapp.com",
@@ -83,30 +93,25 @@
         let miRol = "";
         let finalizado = false;
 
-        function unirseASala() {
-            salaId = document.getElementById('room-name').value.trim().toLowerCase();
-            if (!salaId) return alert("Ponle un nombre a la sala");
-            const ftVal = parseInt(document.getElementById('ft-limit').value);
-            const refSala = db.ref('salas/' + salaId);
+        function crearSala() {
+            const ft = parseInt(document.getElementById('ft-limit').value);
+            const ref = db.ref('salas').push();
+            salaId = ref.key; miRol = "p1";
+            ref.set({ p1: miNombre, s1: 0, o1: true, p2: "Esperando...", s2: 0, o2: false, ft: ft, activa: true });
+            ref.onDisconnect().update({ o1: false }); 
+            iniciar();
+        }
 
-            refSala.once('value', snap => {
-                const data = snap.val();
-                if (!data) {
-                    miRol = "p1";
-                    refSala.set({ p1: miNombre, s1: 0, o1: true, p2: "Esperando...", s2: 0, o2: false, ft: ftVal, activa: true });
-                    refSala.onDisconnect().remove(); 
-                } else {
-                    if (data.p2 === "Esperando..." || data.p2 === miNombre) {
-                        miRol = "p2";
-                        db.ref('salas/' + salaId).onDisconnect().cancel();
-                        refSala.update({ p2: miNombre, o2: true });
-                        db.ref(`salas/${salaId}/o1`).onDisconnect().set(false);
-                        db.ref(`salas/${salaId}/o2`).onDisconnect().set(false);
-                    } else {
-                        alert("Sala llena");
-                        return;
-                    }
-                }
+        function unirseASala() {
+            salaId = document.getElementById('room-id-input').value.trim();
+            if(!salaId) return;
+            const ref = db.ref('salas/' + salaId);
+            ref.once('value', snap => {
+                const d = snap.val();
+                if(!d || (d.p2 !== "Esperando..." && d.p2 !== miNombre)) return alert("Sala no disponible");
+                miRol = "p2";
+                db.ref(`salas/${salaId}/o2`).onDisconnect().set(false);
+                ref.update({ p2: miNombre, o2: true });
                 iniciar();
             });
         }
@@ -114,132 +119,116 @@
         function iniciar() {
             document.getElementById('room-selector').style.display = "none";
             document.getElementById('battle-room').style.display = "block";
-            document.getElementById('display-room-id').innerText = "SALA: " + salaId.toUpperCase();
+            document.getElementById('display-room-id').innerText = salaId;
 
             db.ref('salas/' + salaId).on('value', snap => {
                 const data = snap.val();
-                
-                if (!data) {
-                    if (!finalizado) window.location.href = 'index.html';
-                    return;
-                }
+                if(!data) return;
 
-                if (data.activa && (data.o1 === false || data.o2 === false)) {
-                    if (!finalizado && data.p2 !== "Esperando...") {
-                        finalizado = true;
-                        procesarResultadoRanking(data);
-                    }
-                    return;
-                }
-
-                document.getElementById('name-p1').innerText = data.p1;
-                document.getElementById('name-p2').innerText = data.p2;
+                // Actualización en tiempo real del marcador (siempre fiel a la DB)
                 document.getElementById('score-p1').innerText = data.s1;
                 document.getElementById('score-p2').innerText = data.s2;
+                document.getElementById('name-p1').innerText = data.p1;
+                document.getElementById('name-p2').innerText = data.p2;
 
+                const hayRival = (data.p2 !== "Esperando...");
                 const ambosOnline = data.o1 && data.o2;
-                document.getElementById('btn-add-p1').disabled = (miRol !== 'p1' || !ambosOnline || !data.activa);
-                document.getElementById('btn-add-p2').disabled = (miRol !== 'p2' || !ambosOnline || !data.activa);
+                
+                // Habilitar botones si ambos están (Cualquiera puede ser Host y sumar)
+                document.getElementById('add-p1').disabled = !ambosOnline;
+                document.getElementById('add-p2').disabled = !ambosOnline;
 
-                if (ambosOnline) {
-                    document.getElementById('waiting-msg').innerText = "¡En combate! (FT " + data.ft + ")";
-                }
+                if (hayRival) {
+                    document.getElementById('status-msg').innerText = ambosOnline ? `PELEANDO A FT ${data.ft}` : "CONEXIÓN PERDIDA - FINALIZANDO...";
+                    
+                    // Lógica de finalización
+                    const rivalSeFue = (miRol === 'p1' && !data.o2) || (miRol === 'p2' && !data.o1);
+                    const victoriaPorPuntos = data.s1 >= data.ft || data.s2 >= data.ft;
 
-                if (data.activa && (data.s1 >= data.ft || data.s2 >= data.ft)) {
-                    if (!finalizado) {
+                    if ((rivalSeFue || victoriaPorPuntos) && !finalizado) {
                         finalizado = true;
-                        procesarResultadoRanking(data);
+                        if(rivalSeFue) alert("Tu oponente se ha retirado. Se guardarán los resultados actuales.");
+                        db.ref('salas/' + salaId).off(); // Dejar de escuchar cambios
+                        procesarFinal(data);
                     }
                 }
-            });
-
-            db.ref('chats/' + salaId).limitToLast(15).on('child_added', snap => {
-                const msg = snap.val();
-                const div = document.createElement('div');
-                div.className = `msg ${msg.user === miNombre ? 'msg-mio' : 'msg-rival'}`;
-                div.innerHTML = `<span class="msg-name">${msg.user}</span>${msg.text}`;
-                document.getElementById('chat-messages').appendChild(div);
-                document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
-            });
-        }
-
-        function procesarResultadoRanking(data) {
-            const encargado = (data.o1 === false) ? data.p2 : data.p1;
-            
-            if (miNombre !== encargado) {
-                setTimeout(() => window.location.href = 'index.html', 2500);
-                return;
-            }
-
-            // Si ambos están en 0, simplemente borramos la sala y salimos
-            if (data.s1 === 0 && data.s2 === 0) {
-                db.ref('salas/' + salaId).remove();
-                db.ref('chats/' + salaId).remove();
-                window.location.href = 'index.html';
-                return;
-            }
-
-            db.ref('/').once('value', snapshot => {
-                const base = snapshot.val();
-                let players = base.players || [];
-                let history = base.history || [];
-                let p1 = players.find(p => p.name === data.p1);
-                let p2 = players.find(p => p.name === data.p2);
-
-                if (p1 && p2 && (data.s1 !== data.s2)) {
-                    const s1 = data.s1;
-                    const s2 = data.s2;
-                    const ganador = s1 > s2 ? p1 : p2;
-                    const perdedor = s1 > s2 ? p2 : p1;
-                    const K = 32;
-                    const prob = 1 / (1 + Math.pow(10, (perdedor.elo - ganador.elo) / 400));
-                    const puntos = Math.round(K * (1 - prob));
-
-                    ganador.elo += puntos;
-                    ganador.wins++;
-                    ganador.streak = (ganador.streak > 0) ? ganador.streak + 1 : 1;
-                    perdedor.elo = Math.max(0, perdedor.elo - puntos);
-                    perdedor.losses++;
-                    perdedor.streak = (perdedor.streak < 0) ? perdedor.streak - 1 : -1;
-
-                    history.unshift({ p1: data.p1, p2: data.p2, s1: s1, s2: s2, date: Date.now() });
-                    db.ref('players').set(players);
-                    db.ref('history').set(history.slice(0, 100));
-                }
-                
-                // Borrar siempre la sala al finalizar el proceso
-                db.ref('salas/' + salaId).remove();
-                db.ref('chats/' + salaId).remove();
-                setTimeout(() => window.location.href = 'index.html', 1500);
             });
         }
 
         function sumarPunto(key) {
-            db.ref('salas/' + salaId).child(key).transaction(c => (c || 0) + 1);
+            db.ref('salas/' + salaId).child(key).transaction(current => (current || 0) + 1);
         }
 
-        function enviarMensaje() {
-            const input = document.getElementById('chat-input');
-            if (input.value.trim()) {
-                db.ref('chats/' + salaId).push({ user: miNombre, text: input.value });
-                input.value = "";
+        function procesarFinal(data) {
+            let ganador = "Empate";
+            if (data.s1 > data.s2 || (data.o2 === false && data.s1 >= data.s2)) ganador = data.p1;
+            else if (data.s2 > data.s1 || (data.o1 === false && data.s2 >= data.s1)) ganador = data.p2;
+
+            document.getElementById('winner-name').innerText = ganador;
+            document.getElementById('winner-overlay').style.display = "flex";
+
+            // El "Host Dinámico" es el que sigue conectado (true)
+            const soyElEncargado = (miRol === 'p1' && data.o1) || (miRol === 'p2' && data.o2);
+            
+            if (soyElEncargado) {
+                subirDatosRanking(data);
+            } else {
+                // Si yo soy el que se fue, solo espero redirección
+                setTimeout(() => window.location.href = 'index.html', 3000);
             }
+        }
+
+        function subirDatosRanking(data) {
+            db.ref('/').once('value', snap => {
+                const base = snap.val();
+                let players = base.players || [];
+                let history = base.history || [];
+                
+                let p1 = players.find(p => p.name === data.p1);
+                let p2 = players.find(p => p.name === data.p2);
+
+                if (p1 && p2) {
+                    // Si hubo abandono, el que se quedó gana automáticamente el punto decisivo si iban empate
+                    let s1 = data.s1, s2 = data.s2;
+                    if (data.o1 === false && s2 <= s1) s2 = s1 + 1;
+                    if (data.o2 === false && s1 <= s2) s1 = s2 + 1;
+
+                    const winObj = s1 > s2 ? p1 : p2;
+                    const loseObj = s1 > s2 ? p2 : p1;
+
+                    const K = 32;
+                    const prob = 1 / (1 + Math.pow(10, (loseObj.elo - winObj.elo) / 400));
+                    const pts = Math.round(K * (1 - prob));
+
+                    winObj.elo += pts; winObj.wins++;
+                    winObj.streak = (winObj.streak > 0) ? winObj.streak + 1 : 1;
+                    
+                    loseObj.elo = Math.max(0, loseObj.elo - pts); loseObj.losses++;
+                    loseObj.streak = (loseObj.streak < 0) ? loseObj.streak - 1 : -1;
+
+                    history.unshift({ p1: data.p1, p2: data.p2, s1: s1, s2: s2, date: Date.now() });
+
+                    db.ref('players').set(players);
+                    db.ref('history').set(history.slice(0, 100));
+                }
+
+                // Limpiar sala y salir
+                setTimeout(() => {
+                    db.ref('salas/' + salaId).remove();
+                    window.location.href = 'index.html';
+                }, 2000);
+            });
         }
 
         function abandonarSala() {
-            if (confirm("¿Finalizar batalla? Se registrarán los puntos actuales.")) {
-                const refSala = db.ref('salas/' + salaId);
-                refSala.once('value', snap => {
-                    const data = snap.val();
-                    if (!data || data.p2 === "Esperando...") {
-                        refSala.remove();
-                        db.ref('chats/' + salaId).remove();
-                        window.location.href = 'index.html';
-                    } else {
-                        db.ref(`salas/${salaId}/${miRol === 'p1' ? 'o1' : 'o2'}`).set(false);
-                    }
-                });
+            if(confirm("¿Quieres finalizar la batalla ahora?")) {
+                db.ref(`salas/${salaId}/${miRol === 'p1' ? 'o1' : 'o2'}`).set(false);
             }
+        }
+
+        function copiarID() {
+            navigator.clipboard.writeText(salaId);
+            alert("ID de Sala copiado al portapapeles");
         }
     </script>
 </body>
