@@ -94,12 +94,20 @@
                 if (!data) {
                     miRol = "p1";
                     refSala.set({ p1: miNombre, s1: 0, o1: true, p2: "Esperando...", s2: 0, o2: false, ft: ftVal, activa: true });
+                    
+                    // SOLUCIÓN: Si cierras la pestaña y estás solo, Firebase borra la sala solo.
                     refSala.onDisconnect().remove(); 
                 } else {
                     if (data.p2 === "Esperando..." || data.p2 === miNombre) {
                         miRol = "p2";
+                        // Importante: Cancelamos el .remove() de P1 porque ya entró alguien
+                        db.ref('salas/' + salaId).onDisconnect().cancel();
+                        
                         refSala.update({ p2: miNombre, o2: true });
-                        db.ref(`salas/${salaId}/${miRol === 'p1' ? 'o1' : 'o2'}`).onDisconnect().set(false);
+                        
+                        // Ahora ambos usan la lógica de "marcar offline" en lugar de borrar
+                        db.ref(`salas/${salaId}/o1`).onDisconnect().set(false);
+                        db.ref(`salas/${salaId}/o2`).onDisconnect().set(false);
                     } else {
                         alert("Sala llena");
                         return;
@@ -117,13 +125,16 @@
             db.ref('salas/' + salaId).on('value', snap => {
                 const data = snap.val();
                 
-                // DETECTOR DE SALIDA: Si alguien se desconecta (o1 o o2 es false)
-                if (!data || (data.activa && (data.o1 === false || data.o2 === false))) {
-                    if (!finalizado && data && data.p2 !== "Esperando...") {
+                if (!data) {
+                    if (!finalizado) window.location.href = 'index.html';
+                    return;
+                }
+
+                // Si alguien se desconecta durante una pelea activa
+                if (data.activa && (data.o1 === false || data.o2 === false)) {
+                    if (!finalizado && data.p2 !== "Esperando...") {
                         finalizado = true;
                         procesarResultadoRanking(data);
-                    } else if (!data && !finalizado) {
-                         window.location.href = 'index.html';
                     }
                     return;
                 }
@@ -139,7 +150,6 @@
 
                 if (ambosOnline) {
                     document.getElementById('waiting-msg').innerText = "¡En combate! (FT " + data.ft + ")";
-                    db.ref(`salas/${salaId}/${miRol === 'p1' ? 'o1' : 'o2'}`).onDisconnect().set(false);
                 }
 
                 if (data.activa && (data.s1 >= data.ft || data.s2 >= data.ft)) {
@@ -161,9 +171,7 @@
         }
 
         function procesarResultadoRanking(data) {
-            // El jugador que sigue online es el encargado de limpiar y subir datos
             const encargado = (data.o1 === false) ? data.p2 : data.p1;
-            
             if (miNombre !== encargado) {
                 setTimeout(() => window.location.href = 'index.html', 2500);
                 return;
@@ -173,37 +181,29 @@
                 const base = snapshot.val();
                 let players = base.players || [];
                 let history = base.history || [];
-
                 let p1 = players.find(p => p.name === data.p1);
                 let p2 = players.find(p => p.name === data.p2);
 
                 if (p1 && p2) {
                     const s1 = data.s1;
                     const s2 = data.s2;
-                    
                     if (s1 !== s2) {
                         const ganador = s1 > s2 ? p1 : p2;
                         const perdedor = s1 > s2 ? p2 : p1;
                         const K = 32;
                         const prob = 1 / (1 + Math.pow(10, (perdedor.elo - ganador.elo) / 400));
                         const puntos = Math.round(K * (1 - prob));
-
-                        ganador.elo += puntos;
-                        ganador.wins++;
+                        ganador.elo += puntos; ganador.wins++;
                         ganador.streak = (ganador.streak > 0) ? ganador.streak + 1 : 1;
                         perdedor.elo = Math.max(0, perdedor.elo - puntos);
                         perdedor.losses++;
                         perdedor.streak = (perdedor.streak < 0) ? perdedor.streak - 1 : -1;
                     }
-
                     history.unshift({ p1: data.p1, p2: data.p2, s1: s1, s2: s2, date: Date.now() });
-                    
-                    // ACTUALIZAR RANKING Y BORRAR SALA DE FIREBASE
                     db.ref('players').set(players);
                     db.ref('history').set(history.slice(0, 100));
                     db.ref('salas/' + salaId).remove();
                     db.ref('chats/' + salaId).remove();
-                    
                     setTimeout(() => window.location.href = 'index.html', 1500);
                 }
             });
@@ -223,7 +223,17 @@
 
         function abandonarSala() {
             if (confirm("¿Finalizar batalla? Se registrarán los puntos actuales.")) {
-                db.ref(`salas/${salaId}/${miRol === 'p1' ? 'o1' : 'o2'}`).set(false);
+                const refSala = db.ref('salas/' + salaId);
+                refSala.once('value', snap => {
+                    const data = snap.val();
+                    if (!data || data.p2 === "Esperando...") {
+                        refSala.remove();
+                        db.ref('chats/' + salaId).remove();
+                        window.location.href = 'index.html';
+                    } else {
+                        db.ref(`salas/${salaId}/${miRol === 'p1' ? 'o1' : 'o2'}`).set(false);
+                    }
+                });
             }
         }
     </script>
