@@ -527,11 +527,12 @@
     function renderLogs() {
       const logsEl = document.getElementById("logs");
       const startL = (currentPageLogs - 1) * PAGE_SIZE;
-      const pageHistory = history.slice(startL, startL + PAGE_SIZE);
+      const historyReversed = [...history].reverse();
+      const pageHistory = historyReversed.slice(startL, startL + PAGE_SIZE);
 
       logsEl.innerHTML = pageHistory.map((h, i) => {
         const p1win = h.s1 > h.s2;
-        const currentId = h.id || `temp-${startL + i}`;
+        const currentId = h.id || `temp-${history.length - 1 - (startL + i)}`;
 
         return `<div class="log">
         <span class="log-num">#${startL + i + 1}</span> 
