@@ -241,7 +241,9 @@ function openModal(name) {
         </button>
     `;
 
-    const ultimasPeleas = history.filter(h => h.p1 === name || h.p2 === name).slice(0, 5);
+    // --- MODIFICACIÓN AQUÍ: Invertimos el historial para que lo nuevo salga primero ---
+    const ultimasPeleas = [...history].reverse().filter(h => h.p1 === name || h.p2 === name).slice(0, 5);
+    
     document.getElementById('modalHistory').innerHTML = ultimasPeleas.map(h => {
         const gano = (h.p1 === name && h.s1 > h.s2) || (h.p2 === name && h.s2 > h.s1);
         return `<li style="padding:5px 0; border-bottom:1px solid #333; font-size:0.85rem;">
