@@ -382,18 +382,10 @@
     db.ref('/').on('value', snapshot => {
       const data = snapshot.val();
       players = data?.players || [];
+      history = data?.history || [];
 
-      // FIX: Convertir history de objeto Firebase a array limpio + orden descendente
-      const rawHistory = data?.history || {};
-      history = Object.keys(rawHistory)
-        .filter(key => rawHistory[key] && typeof rawHistory[key] === 'object')
-        .map(key => ({
-          id: key,
-          ...rawHistory[key]
-        }))
-        .sort((a, b) => parseInt(b.id) - parseInt(a.id));
-
-      console.log("IDs ordenados globalmente:", history.map(h => h.id));
+      // Ordenar history descendente por id (nuevos primero)
+      history.sort((a, b) => parseInt(b.id) - parseInt(a.id));
 
       renderAll();
     });
@@ -450,6 +442,7 @@
       saveCloud();
     }
 
+    // NUEVA FUNCIÓN PARA EL BOTÓN DE SINCRONIZACIÓN
     function forceRebuild() {
       if (!confirm("¿Deseas recalcular todas las estadísticas basándote en el historial?")) return;
       rebuild();
@@ -494,22 +487,13 @@
     }
 
     function registerMatch() {
-      const a = document.getElementById("p1Input").value.trim();
-      const b = document.getElementById("p2Input").value.trim();
-      const sa = parseInt(document.getElementById("s1Input").value);
-      const sb = parseInt(document.getElementById("s2Input").value);
-
+      const a = p1Input.value.trim(), b = p2Input.value.trim();
+      const sa = parseInt(s1Input.value), sb = parseInt(s2Input.value);
       if (!a || !b || a === b || isNaN(sa) || isNaN(sb)) return alert("Datos incompletos");
-
       history.unshift({ id: Date.now().toString(), p1: a, p2: b, s1: sa, s2: sb });
       rebuild();
       saveCloud();
-
-      document.getElementById("p1Input").value = "";
-      document.getElementById("s1Input").value = "";
-      document.getElementById("p2Input").value = "";
-      document.getElementById("s2Input").value = "";
-
+      p1Input.value = ""; s1Input.value = ""; p2Input.value = ""; s2Input.value = "";
       document.getElementById("confirm").innerHTML = `<div style="background:#2e7d32;padding:6px;border-radius:6px;text-align:center;margin-top:5px;">✅ Guardado</div>`;
       setTimeout(() => document.getElementById("confirm").innerHTML = "", 1000);
     }
@@ -531,15 +515,15 @@
         const rachaText = p.streak > 0 ? '🔥 ' + p.streak : (p.streak < 0 ? '💀 ' + Math.abs(p.streak) : '-');
         const r = getRank(p.elo);
         return `<tr>
-          <td class="rank-col">${start + i + 1}°</td>
-          <td>${bandera}</td>
-          <td class="player-name-col">${p.name}</td>
-          <td><span class="${r.class}">${r.name}</span></td>
-          <td>${Math.round(p.elo)}</td>
-          <td>${p.wins}/${p.losses}</td>
-          <td>${rachaText}</td>
-          <td><button class="del-btn" onclick="deletePlayer('${p.name}')">🗑️</button></td>
-        </tr>`;
+      <td class="rank-col">${start + i + 1}°</td>
+      <td>${bandera}</td>
+      <td class="player-name-col">${p.name}</td>
+      <td><span class="${r.class}">${r.name}</span></td>
+      <td>${Math.round(p.elo)}</td>
+      <td>${p.wins}/${p.losses}</td>
+      <td>${rachaText}</td>
+      <td><button class="del-btn" onclick="deletePlayer('${p.name}')">🗑️</button></td>
+    </tr>`;
       }).join("");
       renderPagination("rankingPagination", ordenados.length, currentPageRanking, (p) => { currentPageRanking = p; renderRanking(); });
     }
@@ -547,8 +531,7 @@
     function renderLogs() {
       const logsEl = document.getElementById("logs");
       const startL = (currentPageLogs - 1) * PAGE_SIZE;
-
-      // No necesitas sort aquí porque history ya está ordenada descendente globalmente
+      // Quitamos el .reverse() porque ya ordenamos en el listener
       const pageHistory = history.slice(startL, startL + PAGE_SIZE);
 
       logsEl.innerHTML = pageHistory.map((h, i) => {
@@ -568,11 +551,7 @@
           </div>
         </div>`;
       }).join("");
-
-      renderPagination("logsPagination", history.length, currentPageLogs, (p) => { 
-        currentPageLogs = p; 
-        renderLogs(); 
-      });
+      renderPagination("logsPagination", history.length, currentPageLogs, (p) => { currentPageLogs = p; renderLogs(); });
     }
 
     function renderPagination(id, total, current, callback) {
