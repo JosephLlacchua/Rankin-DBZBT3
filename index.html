@@ -138,13 +138,15 @@ function getBanderaHTML(country){
 function getRank(e){ return ranks.find(r=>e>=r.min&&e<=r.max) || ranks[0]; }
 function getProgress(e,r){ return r.name==="S"?100:Math.max(5,Math.min(100,((e-r.min)/(r.max-r.min))*100)); }
 
-// --- CARGA DE DATOS ---
 db.ref('/').on('value', snapshot => {
-  const d = snapshot.val();
-  players = d?.players || [];
-  history = d?.history || [];
+  const data = snapshot.val();
+  players = data?.players || [];
+  history = data?.history || [];
+
+  // Ordenar history descendente por id (nuevos primero) - FIX: parseInt para ids strings
+  history.sort((a, b) => parseInt(b.id) - parseInt(a.id));
+
   render();
-  verificarSesion(); // Verificar sesión al recibir datos
 });
 
 function render(){
@@ -263,4 +265,5 @@ document.getElementById('searchRanking').addEventListener('input', () => {
 });
 </script>
 </body>
+
 </html>
