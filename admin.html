@@ -531,8 +531,11 @@
     function renderLogs() {
       const logsEl = document.getElementById("logs");
       const startL = (currentPageLogs - 1) * PAGE_SIZE;
-      // Quitamos el .reverse() porque ya ordenamos en el listener
-      const pageHistory = history.slice(startL, startL + PAGE_SIZE);
+
+      // FIX: Ordenar descendente por id (nuevos primero) antes de paginar
+      const historyOrdenada = [...history].sort((a, b) => parseInt(b.id) - parseInt(a.id));
+
+      const pageHistory = historyOrdenada.slice(startL, startL + PAGE_SIZE);
 
       logsEl.innerHTML = pageHistory.map((h, i) => {
         const p1win = h.s1 > h.s2;
@@ -551,9 +554,13 @@
           </div>
         </div>`;
       }).join("");
-      renderPagination("logsPagination", history.length, currentPageLogs, (p) => { currentPageLogs = p; renderLogs(); });
-    }
 
+      // Usar la longitud de la lista ordenada para la paginación
+      renderPagination("logsPagination", historyOrdenada.length, currentPageLogs, (p) => { 
+        currentPageLogs = p; 
+        renderLogs(); 
+      });
+    }
     function renderPagination(id, total, current, callback) {
       const container = document.getElementById(id);
       const pages = Math.ceil(total / PAGE_SIZE);
