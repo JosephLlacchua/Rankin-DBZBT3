@@ -144,7 +144,11 @@ db.ref('/').on('value', snapshot => {
   history = data?.history || [];
 
   // Ordenar history descendente por id (nuevos primero) - FIX: parseInt para ids strings
-  history.sort((a, b) => parseInt(b.id) - parseInt(a.id));
+  history.sort((a, b) => {
+  const timeA = a.timestamp || parseInt(a.id) || 0;
+  const timeB = b.timestamp || parseInt(b.id) || 0;
+  return timeB - timeA; // descendente: nuevos primero
+});
 
   render();
 });
@@ -244,8 +248,8 @@ function openModal(name) {
         </button>
     `;
 
-    // --- MODIFICACIÓN AQUÍ: Invertimos el historial para que lo nuevo salga primero ---
-    const ultimasPeleas = [...history].reverse().filter(h => h.p1 === name || h.p2 === name).slice(0, 5);
+    // FIX: No invertimos porque history ya está ordenada descendente (nuevos primero)
+    const ultimasPeleas = history.filter(h => h.p1 === name || h.p2 === name).slice(0, 5);
     
     // === Línea de debug para ver qué peleas está tomando ===
     console.log("Últimas peleas para", name, ":", ultimasPeleas.map(h => h.id + " | " + h.p1 + " vs " + h.p2));
