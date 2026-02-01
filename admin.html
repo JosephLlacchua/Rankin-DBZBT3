@@ -380,15 +380,23 @@
     }
 
     db.ref('/').on('value', snapshot => {
-      const data = snapshot.val();
-      players = data?.players || [];
-      history = data?.history || [];
+  const data = snapshot.val();
+  players = data?.players || [];
 
-      // Ordenar history descendente por id (nuevos primero)
-      history.sort((a, b) => parseInt(b.id) - parseInt(a.id));
+  // FIX: Convertir objeto history a array de objetos y ordenar descendente
+  let rawHistory = data?.history || {};
+  history = Object.keys(rawHistory).map(key => ({
+    id: key,
+    ...rawHistory[key]
+  }));
 
-      renderAll();
-    });
+  // Ordenar descendente por id numérico (nuevos primero)
+  history.sort((a, b) => parseInt(b.id) - parseInt(a.id));
+
+  console.log("IDs ordenados globalmente:", history.map(h => h.id)); // log temporal para verificar
+
+  renderAll();
+});
 
     function saveCloud() {
       db.ref('/').set({ players: players || [], history: history || [] });
