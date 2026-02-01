@@ -109,7 +109,7 @@
             <div class="stat-card"><b>Racha Actual</b><span>${player.streak > 0 ? '🔥 '+player.streak : player.streak < 0 ? '💀 '+Math.abs(player.streak) : '-'}</span></div>
         `;
 
-        allHistoryForPlayer = [...fullHistory].reverse().filter(h => h.p1 === targetName || h.p2 === targetName);
+        allHistoryForPlayer = fullHistory.filter(h => h.p1 === targetName || h.p2 === targetName);
         
         renderHistory();
         renderChart(playersList, fullHistory);
