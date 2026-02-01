@@ -383,6 +383,10 @@
       const data = snapshot.val();
       players = data?.players || [];
       history = data?.history || [];
+
+      // Ordenar history descendente por id (nuevos primero)
+      history.sort((a, b) => parseInt(b.id) - parseInt(a.id));
+
       renderAll();
     });
 
@@ -527,25 +531,25 @@
     function renderLogs() {
       const logsEl = document.getElementById("logs");
       const startL = (currentPageLogs - 1) * PAGE_SIZE;
-      const historyReversed = [...history].reverse();
-      const pageHistory = historyReversed.slice(startL, startL + PAGE_SIZE);
+      // Quitamos el .reverse() porque ya ordenamos en el listener
+      const pageHistory = history.slice(startL, startL + PAGE_SIZE);
 
       logsEl.innerHTML = pageHistory.map((h, i) => {
         const p1win = h.s1 > h.s2;
         const currentId = h.id || `temp-${history.length - 1 - (startL + i)}`;
 
         return `<div class="log">
-        <span class="log-num">#${startL + i + 1}</span> 
-        <div class="log-content">
-            <span class="log-p1 ${p1win ? 'win' : 'loss'}">${h.p1}</span> 
-            <span class="log-score">${h.s1} – ${h.s2}</span> 
-            <span class="log-p2 ${p1win ? 'loss' : 'win'}">${h.p2}</span>
-        </div>
-        <div class="log-actions">
-          <button class="edit-btn" onclick="openEdit('${currentId}')">✏️</button>
-          <button class="del-btn" onclick="deleteMatch('${currentId}')">🗑️</button>
-        </div>
-      </div>`;
+          <span class="log-num">#${startL + i + 1}</span> 
+          <div class="log-content">
+              <span class="log-p1 ${p1win ? 'win' : 'loss'}">${h.p1}</span> 
+              <span class="log-score">${h.s1} – ${h.s2}</span> 
+              <span class="log-p2 ${p1win ? 'loss' : 'win'}">${h.p2}</span>
+          </div>
+          <div class="log-actions">
+            <button class="edit-btn" onclick="openEdit('${currentId}')">✏️</button>
+            <button class="del-btn" onclick="deleteMatch('${currentId}')">🗑️</button>
+          </div>
+        </div>`;
       }).join("");
       renderPagination("logsPagination", history.length, currentPageLogs, (p) => { currentPageLogs = p; renderLogs(); });
     }
