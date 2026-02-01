@@ -535,6 +535,8 @@
       // FIX: Ordenar descendente por id (nuevos primero) antes de paginar
       const historyOrdenada = [...history].sort((a, b) => parseInt(b.id) - parseInt(a.id));
 
+      console.log("IDs ordenados en renderLogs (deberían ser descendentes):", historyOrdenada.map(h => h.id));
+
       const pageHistory = historyOrdenada.slice(startL, startL + PAGE_SIZE);
 
       logsEl.innerHTML = pageHistory.map((h, i) => {
