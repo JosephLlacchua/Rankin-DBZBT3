@@ -289,7 +289,14 @@
 
         function getBanderaHTML(country) {
             if (!country) return "🏳️";
-            const banderas = { "ARGENTINA": "bandera argentina.png", "PERÚ": "bandera peru.png", "PARAGUAY": "bandera paraguay.png", "CHILE": "bandera chile.png", "URUGUAY": "bandera uruguay.png" };
+            const banderas = { "ARGENTINA": "bandera argentina.png",
+              "PERÚ": "bandera peru.png",
+              "PARAGUAY": "bandera paraguay.png",
+              "CHILE": "bandera chile.png",
+              "URUGUAY": "bandera uruguay.png",
+              "BRASIL": "bandera brasil.png"
+            };
+
             const file = banderas[country.toUpperCase()];
             return file ? `<img src="Imagenes/${file}" class="player-flag">` : "🏳️";
         }
