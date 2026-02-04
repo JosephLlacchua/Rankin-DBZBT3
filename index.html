@@ -1,241 +1,401 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<title>Ranking DBZ BT3</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <meta charset="UTF-8">
+    <title>Ranking DBZ BT3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
-<style>
-/* --- ESTILOS OPTIMIZADOS --- */
-body { font-family: Arial, sans-serif; background: url('Imagenes/goku wallp.jpg') no-repeat center center fixed; background-size: cover; color:#fff; padding:10px; margin:0; position: relative; z-index: 1; }
-body::before { content: ""; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: -1; }
-h1 { text-align:center; margin-bottom:20px; text-shadow: 0 0 10px #FFD700; }
+    <style>
+        /* --- ESTILOS OPTIMIZADOS --- */
+        body {
+            font-family: Arial, sans-serif;
+            background: url('Imagenes/goku wallp.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            padding: 10px;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+        }
 
-.table-container { background: rgba(0,0,0,0.6); padding: 15px; border-radius: 12px; box-shadow: 0 0 12px rgba(0,0,0,0.4); overflow-x:auto; border: 1px solid #333; }
-table { width:100%; border-collapse:collapse; font-size:0.9rem; }
-th,td { padding:10px 6px; border-bottom:1px solid #333; text-align:center; }
-th { background:#222; color: #FFD700; text-transform: uppercase; font-size: 0.75rem; }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: -1;
+        }
 
-.player-link { color: #fff; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: 0.3s; text-decoration: underline; text-decoration-color: #444; }
-.player-link:hover { color: #FFD700; transform: scale(1.05); }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #FFD700;
+        }
 
-.player-flag { width: 22px; height: 15px; object-fit: cover; display: block; margin: auto; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 2px; }
+        .table-container {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+            overflow-x: auto;
+            border: 1px solid #333;
+        }
 
-.rank-S { color:#FFD700; font-weight:bold; text-shadow: 0 0 5px gold; }
-.rank-A { color:#FF5252; font-weight:bold; }
-.rank-B { color:#4CAF50; font-weight:bold; }
-.rank-C { color:#03A9F4; font-weight:bold; }
-.rank-D { color:#BDBDBD; font-weight:bold; }
-.rank-E { color:#9E9E9E; font-weight:bold; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
 
-.progress { background:#333; height:6px; border-radius:6px; overflow:hidden; min-width: 50px; }
-.progress-fill { height:100%; background:linear-gradient(90deg,#4caf50,#81c784); }
+        th,
+        td {
+            padding: 10px 6px;
+            border-bottom: 1px solid #333;
+            text-align: center;
+        }
 
-.modal { position:fixed; inset:0; background:rgba(0,0,0,.85); display:flex; align-items:center; justify-content:center; z-index: 1000; }
-.hidden { display:none; }
-.modal-content { background:#1e1e1e; padding:20px; border-radius:15px; width:90%; max-width:450px; border: 1px solid #FFD700; }
+        th {
+            background: #222;
+            color: #FFD700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
 
-.pagination { text-align:center; margin-top:15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
-.pagination button { padding: 8px 12px; border-radius: 5px; border:1px solid #FFD700; background:#111; color:#FFD700; font-weight:bold; cursor:pointer; }
-.pagination button.active { background:#FFD700; color:#111; }
-#searchRanking { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #444; background: #111; color: white; box-sizing: border-box; }
-</style>
+        .player-link {
+            color: #fff;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: underline;
+            text-decoration-color: #444;
+        }
+
+        .player-link:hover {
+            color: #FFD700;
+            transform: scale(1.05);
+        }
+
+        .player-flag {
+            width: 22px;
+            height: 15px;
+            object-fit: cover;
+            display: block;
+            margin: auto;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+        }
+
+        .rank-S {
+            color: #FFD700;
+            font-weight: bold;
+            text-shadow: 0 0 5px gold;
+        }
+
+        .rank-A {
+            color: #FF5252;
+            font-weight: bold;
+        }
+
+        .rank-B {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .rank-C {
+            color: #03A9F4;
+            font-weight: bold;
+        }
+
+        .rank-D {
+            color: #BDBDBD;
+            font-weight: bold;
+        }
+
+        .rank-E {
+            color: #9E9E9E;
+            font-weight: bold;
+        }
+
+        .progress {
+            background: #333;
+            height: 6px;
+            border-radius: 6px;
+            overflow: hidden;
+            min-width: 50px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #81c784);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .modal-content {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid #FFD700;
+        }
+
+        .pagination {
+            text-align: center;
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #FFD700;
+            background: #111;
+            color: #FFD700;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .pagination button.active {
+            background: #FFD700;
+            color: #111;
+        }
+
+        #searchRanking {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #111;
+            color: white;
+            box-sizing: border-box;
+        }
+    </style>
 </head>
+
 <body>
 
-<div id="user-identity-container" style="max-width: 800px; margin: 10px auto; text-align: center;">
-    <div id="user-bar" style="background: rgba(26,26,26,0.9); padding: 15px; border-radius: 10px; display: none; justify-content: space-between; align-items: center; border: 1px solid #FFD700;">
-        <span style="color: white;">👤 Guerrero: <strong id="current-user-name" style="color: #FFD700;"></strong></span>
-        <div>
-            <button onclick="window.location.href='sala.html'" style="background: #FFD700; color: black; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 10px;">⚔️ Arena</button>
-            <button onclick="cerrarSesion()" style="background: #ff4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">Salir</button>
+    <div id="user-identity-container" style="max-width: 800px; margin: 10px auto; text-align: center;">
+        <div id="user-bar"
+            style="background: rgba(26,26,26,0.9); padding: 15px; border-radius: 10px; display: none; justify-content: space-between; align-items: center; border: 1px solid #FFD700;">
+            <span style="color: white;">👤 Guerrero: <strong id="current-user-name"
+                    style="color: #FFD700;"></strong></span>
+            <div>
+                <button onclick="window.location.href='sala.html'"
+                    style="background: #FFD700; color: black; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 10px;">⚔️
+                    Arena</button>
+                <button onclick="cerrarSesion()"
+                    style="background: #ff4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">Salir</button>
+            </div>
+        </div>
+
+        <div id="login-prompt"
+            style="background: rgba(26,26,26,0.9); padding: 20px; border-radius: 10px; border: 1px solid #444; display: none;">
+            <p style="color: #aaa; margin-bottom: 15px;">Inicia sesión para registrar tus victorias y entrar a las
+                salas:</p>
+            <a href="login.html" style="text-decoration: none;">
+                <button
+                    style="background: #03a9f4; color: #000; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                    🔑 INGRESAR AL RANKING
+                </button>
+            </a>
         </div>
     </div>
 
-    <div id="login-prompt" style="background: rgba(26,26,26,0.9); padding: 20px; border-radius: 10px; border: 1px solid #444; display: none;">
-        <p style="color: #aaa; margin-bottom: 15px;">Inicia sesión para registrar tus victorias y entrar a las salas:</p>
-        <a href="login.html" style="text-decoration: none;">
-            <button style="background: #03a9f4; color: #000; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                🔑 INGRESAR AL RANKING
-            </button>
-        </a>
+    <h1>🔥 RANKING DBZ BT3 🔥</h1>
+
+    <input id="searchRanking" placeholder="🔍 Buscar guerrero...">
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>🌐</th>
+                    <th>Guerrero</th>
+                    <th>Rango</th>
+                    <th>ELO</th>
+                    <th>Progreso</th>
+                    <th>W/L</th>
+                    <th>Racha</th>
+                </tr>
+            </thead>
+            <tbody id="ranking"></tbody>
+        </table>
     </div>
-</div>
 
-<h1>🔥 RANKING DBZ BT3 🔥</h1>
+    <div class="pagination" id="pagination"></div>
 
-<input id="searchRanking" placeholder="🔍 Buscar guerrero...">
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="modalTitle" style="text-align:center; margin-top:0;"></h3>
+            <div id="modalStats" style="background: #2a2a2a; padding: 15px; border-radius: 10px; margin: 10px 0;"></div>
+            <canvas id="eloChart" width="400" height="200"></canvas>
+            <h4 style="margin: 15px 0 5px 0; font-size: 0.9rem; color: #FFD700;">Últimas Peleas:</h4>
+            <ul id="modalHistory" style="list-style: none; padding: 0; margin-bottom: 20px;"></ul>
+            <button onclick="closeModal()"
+                style="width:100%; padding:12px; cursor:pointer; background: #444; color: white; border: none; border-radius: 8px; font-weight: bold;">Cerrar</button>
+        </div>
+    </div>
 
-<div class="table-container">
-    <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>🌐</th>
-                <th>Guerrero</th>
-                <th>Rango</th>
-                <th>ELO</th>
-                <th>Progreso</th>
-                <th>W/L</th>
-                <th>Racha</th>
-            </tr>
-        </thead>
-        <tbody id="ranking"></tbody>
-    </table>
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // --- CONFIGURACIÓN FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_eT9VlLk_b1toTcva8w9NwU-FGjrEtEI",
+            authDomain: "ranking-dbz-bt3.firebaseapp.com",
+            databaseURL: "https://ranking-dbz-bt3-default-rtdb.firebaseio.com",
+            projectId: "ranking-dbz-bt3",
+            storageBucket: "ranking-dbz-bt3.firebasestorage.app",
+            messagingSenderId: "228731370543",
+            appId: "1:228731370543:web:ff3e418be283b6387edada"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-<div class="pagination" id="pagination"></div>
+        let players = [], history = [];
+        const PAGE_SIZE = 10;
+        let currentPage = 1;
+        let chartInstance = null;
 
-<div id="modal" class="modal hidden">
-  <div class="modal-content">
-    <h3 id="modalTitle" style="text-align:center; margin-top:0;"></h3>
-    <div id="modalStats" style="background: #2a2a2a; padding: 15px; border-radius: 10px; margin: 10px 0;"></div>
-    <canvas id="eloChart" width="400" height="200"></canvas>
-    <h4 style="margin: 15px 0 5px 0; font-size: 0.9rem; color: #FFD700;">Últimas Peleas:</h4>
-    <ul id="modalHistory" style="list-style: none; padding: 0; margin-bottom: 20px;"></ul>
-    <button onclick="closeModal()" style="width:100%; padding:12px; cursor:pointer; background: #444; color: white; border: none; border-radius: 8px; font-weight: bold;">Cerrar</button>
-  </div>
-</div>
+        const ranks = [
+            { name: "E", min: 0, max: 699, class: "rank-E" },
+            { name: "D", min: 700, max: 999, class: "rank-D" },
+            { name: "C", min: 1000, max: 1299, class: "rank-C" },
+            { name: "B", min: 1300, max: 1599, class: "rank-B" },
+            { name: "A", min: 1600, max: 1899, class: "rank-A" },
+            { name: "S", min: 1900, max: Infinity, class: "rank-S" }
+        ];
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-// --- CONFIGURACIÓN FIREBASE ---
-const firebaseConfig = {
-  apiKey: "AIzaSyD_eT9VlLk_b1toTcva8w9NwU-FGjrEtEI",
-  authDomain: "ranking-dbz-bt3.firebaseapp.com",
-  databaseURL: "https://ranking-dbz-bt3-default-rtdb.firebaseio.com",
-  projectId: "ranking-dbz-bt3",
-  storageBucket: "ranking-dbz-bt3.firebasestorage.app",
-  messagingSenderId: "228731370543",
-  appId: "1:228731370543:web:ff3e418be283b6387edada"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+        function getBanderaHTML(country) {
+            if (!country) return "🏳️";
+            const banderas = { "ARGENTINA": "bandera argentina.png", "PERÚ": "bandera peru.png", "PARAGUAY": "bandera paraguay.png", "CHILE": "bandera chile.png", "URUGUAY": "bandera uruguay.png" };
+            const file = banderas[country.toUpperCase()];
+            return file ? `<img src="Imagenes/${file}" class="player-flag">` : "🏳️";
+        }
 
-let players=[], history=[];
-const PAGE_SIZE=10;
-let currentPage=1;
-let chartInstance=null;
+        function getRank(e) { return ranks.find(r => e >= r.min && e <= r.max) || ranks[0]; }
+        function getProgress(e, r) { return r.name === "S" ? 100 : Math.max(5, Math.min(100, ((e - r.min) / (r.max - r.min)) * 100)); }
 
-const ranks=[ 
-    {name:"E",min:0,max:699,class:"rank-E"}, 
-    {name:"D",min:700,max:999,class:"rank-D"}, 
-    {name:"C",min:1000,max:1299,class:"rank-C"}, 
-    {name:"B",min:1300,max:1599,class:"rank-B"}, 
-    {name:"A",min:1600,max:1899,class:"rank-A"}, 
-    {name:"S",min:1900,max:Infinity,class:"rank-S"} 
-];
+        db.ref('/').on('value', snapshot => {
+            const data = snapshot.val();
+            players = data?.players || [];
+            history = data?.history || [];
 
-function getBanderaHTML(country){
-  if(!country) return "🏳️";
-  const banderas = { "ARGENTINA": "bandera argentina.png", "PERÚ": "bandera peru.png", "PARAGUAY": "bandera paraguay.png", "CHILE": "bandera chile.png", "URUGUAY": "bandera uruguay.png" };
-  const file = banderas[country.toUpperCase()];
-  return file ? `<img src="Imagenes/${file}" class="player-flag">` : "🏳️";
-}
+            // Ordenar history descendente por id (nuevos primero) - FIX: parseInt para ids strings
+            history.sort((a, b) => {
+                const timeA = a.timestamp || parseInt(a.id) || 0;
+                const timeB = b.timestamp || parseInt(b.id) || 0;
+                return timeB - timeA; // descendente: nuevos primero
+            });
 
-function getRank(e){ return ranks.find(r=>e>=r.min&&e<=r.max) || ranks[0]; }
-function getProgress(e,r){ return r.name==="S"?100:Math.max(5,Math.min(100,((e-r.min)/(r.max-r.min))*100)); }
+            render();
+            verificarSesion();  // ← AGREGA ESTA LÍNEA AQUÍ
+        });
 
-db.ref('/').on('value', snapshot => {
-  const data = snapshot.val();
-  players = data?.players || [];
-  history = data?.history || [];
+        function render() {
+            const rankingEl = document.getElementById('ranking');
+            const busqueda = document.getElementById('searchRanking').value.toLowerCase();
 
-  // Ordenar history descendente por id (nuevos primero) - FIX: parseInt para ids strings
-  history.sort((a, b) => {
-  const timeA = a.timestamp || parseInt(a.id) || 0;
-  const timeB = b.timestamp || parseInt(b.id) || 0;
-  return timeB - timeA; // descendente: nuevos primero
-});
+            // Ordenar por ELO
+            let ordenados = [...players].sort((a, b) => b.elo - a.elo);
 
-  render();
-});
+            // Filtrar
+            let filtrados = ordenados.filter(p => p.name.toLowerCase().includes(busqueda));
 
-function render(){
-  const rankingEl=document.getElementById('ranking');
-  const busqueda = document.getElementById('searchRanking').value.toLowerCase();
-  
-  // Ordenar por ELO
-  let ordenados = [...players].sort((a,b)=>b.elo-a.elo);
-  
-  // Filtrar
-  let filtrados = ordenados.filter(p => p.name.toLowerCase().includes(busqueda));
-  
-  // Paginación
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const visibles = filtrados.slice(start, start + PAGE_SIZE);
+            // Paginación
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const visibles = filtrados.slice(start, start + PAGE_SIZE);
 
-  rankingEl.innerHTML = visibles.map((p) => {
-    const r = getRank(p.elo);
-    const pos = ordenados.findIndex(x => x.name === p.name) + 1;
-    const rachaClass = p.streak > 0 ? 'color:#4caf50' : 'color:#ff5252';
-    const rachaIcon = p.streak > 0 ? '🔥' : (p.streak < 0 ? '💀' : '');
+            rankingEl.innerHTML = visibles.map((p) => {
+                const r = getRank(p.elo);
+                const pos = ordenados.findIndex(x => x.name === p.name) + 1;
+                const rachaClass = p.streak > 0 ? 'color:#4caf50' : 'color:#ff5252';
+                const rachaIcon = p.streak > 0 ? '🔥' : (p.streak < 0 ? '💀' : '');
 
-    return `<tr>
+                return `<tr>
       <td style="font-weight:bold; color:#aaa;">${pos}</td>
       <td>${getBanderaHTML(p.country)}</td>
       <td><span class="player-link" onclick="openModal('${p.name}')">${p.name}</span></td>
       <td class="${r.class}">${r.name}</td>
       <td style="font-weight:bold;">${Math.round(p.elo)}</td>
-      <td><div class="progress"><div class="progress-fill" style="width:${getProgress(p.elo,r)}%"></div></div></td>
+      <td><div class="progress"><div class="progress-fill" style="width:${getProgress(p.elo, r)}%"></div></div></td>
       <td>${p.wins}/${p.losses}</td>
       <td style="${rachaClass}; font-weight:bold;">${rachaIcon} ${Math.abs(p.streak || 0)}</td>
     </tr>`;
-  }).join("");
+            }).join("");
 
-  renderPagination(filtrados.length);
-}
+            renderPagination(filtrados.length);
+        }
 
-function renderPagination(totalItems) {
-  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
-  const container = document.getElementById('pagination');
-  container.innerHTML = "";
-  if(totalPages <= 1) return;
+        function renderPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+            const container = document.getElementById('pagination');
+            container.innerHTML = "";
+            if (totalPages <= 1) return;
 
-  for(let i=1; i<=totalPages; i++) {
-    const btn = document.createElement("button");
-    btn.innerText = i;
-    if(i === currentPage) btn.className = "active";
-    btn.onclick = () => { currentPage = i; render(); };
-    container.appendChild(btn);
-  }
-}
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement("button");
+                btn.innerText = i;
+                if (i === currentPage) btn.className = "active";
+                btn.onclick = () => { currentPage = i; render(); };
+                container.appendChild(btn);
+            }
+        }
 
-// --- LÓGICA DE SESIÓN ---
-function verificarSesion() {
-    // CAMBIO CLAVE: Usamos "logged_user" para coincidir con login.html
-    const nombre = localStorage.getItem("logged_user");
-    const userBar = document.getElementById("user-bar");
-    const loginPrompt = document.getElementById("login-prompt");
-    const nameDisplay = document.getElementById("current-user-name");
+        // --- LÓGICA DE SESIÓN ---
+        function verificarSesion() {
+            // CAMBIO CLAVE: Usamos "logged_user" para coincidir con login.html
+            const nombre = localStorage.getItem("logged_user");
+            const userBar = document.getElementById("user-bar");
+            const loginPrompt = document.getElementById("login-prompt");
+            const nameDisplay = document.getElementById("current-user-name");
 
-    if (nombre) {
-        userBar.style.display = "flex";
-        loginPrompt.style.display = "none";
-        nameDisplay.innerText = nombre;
-    } else {
-        userBar.style.display = "none";
-        loginPrompt.style.display = "block";
-    }
-}
+            if (nombre) {
+                userBar.style.display = "flex";
+                loginPrompt.style.display = "none";
+                nameDisplay.innerText = nombre;
+            } else {
+                userBar.style.display = "none";
+                loginPrompt.style.display = "block";
+            }
+        }
 
-function cerrarSesion() {
-    if (confirm("¿Cerrar sesión de guerrero?")) {
-        localStorage.removeItem("logged_user");
-        location.reload();
-    }
-}
+        function cerrarSesion() {
+            if (confirm("¿Cerrar sesión de guerrero?")) {
+                localStorage.removeItem("logged_user");
+                location.reload();
+            }
+        }
 
-// --- MODAL Y GRÁFICO ---
+        // --- MODAL Y GRÁFICO ---
 
-function openModal(name) {
-    const p = players.find(x => x.name === name);
-    if (!p) return;
+        function openModal(name) {
+            const p = players.find(x => x.name === name);
+            if (!p) return;
 
-    document.getElementById('modalTitle').innerHTML = `${getBanderaHTML(p.country)} ${p.name}`;
-    document.getElementById('modalStats').innerHTML = `
+            document.getElementById('modalTitle').innerHTML = `${getBanderaHTML(p.country)} ${p.name}`;
+            document.getElementById('modalStats').innerHTML = `
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align:left;">
             <div><b>Rango:</b> <span class="${getRank(p.elo).class}">${getRank(p.elo).name}</span></div>
             <div><b>ELO:</b> ${Math.round(p.elo)}</div>
@@ -248,30 +408,30 @@ function openModal(name) {
         </button>
     `;
 
-    // FIX: No invertimos porque history ya está ordenada descendente (nuevos primero)
-    const ultimasPeleas = history.filter(h => h.p1 === name || h.p2 === name).slice(0, 5);
-    
-    // === Línea de debug para ver qué peleas está tomando ===
-    console.log("Últimas peleas para", name, ":", ultimasPeleas.map(h => h.id + " | " + h.p1 + " vs " + h.p2));
+            // FIX: No invertimos porque history ya está ordenada descendente (nuevos primero)
+            const ultimasPeleas = history.filter(h => h.p1 === name || h.p2 === name).slice(0, 5);
 
-    document.getElementById('modalHistory').innerHTML = ultimasPeleas.map(h => {
-        const gano = (h.p1 === name && h.s1 > h.s2) || (h.p2 === name && h.s2 > h.s1);
-        return `<li style="padding:5px 0; border-bottom:1px solid #333; font-size:0.85rem;">
-            <span style="color:${gano?'#4caf50':'#ff5252'}">${gano?'WIN':'LOSS'}</span> | ${h.p1} ${h.s1} - ${h.s2} ${h.p2}
+            // === Línea de debug para ver qué peleas está tomando ===
+            console.log("Últimas peleas para", name, ":", ultimasPeleas.map(h => h.id + " | " + h.p1 + " vs " + h.p2));
+
+            document.getElementById('modalHistory').innerHTML = ultimasPeleas.map(h => {
+                const gano = (h.p1 === name && h.s1 > h.s2) || (h.p2 === name && h.s2 > h.s1);
+                return `<li style="padding:5px 0; border-bottom:1px solid #333; font-size:0.85rem;">
+            <span style="color:${gano ? '#4caf50' : '#ff5252'}">${gano ? 'WIN' : 'LOSS'}</span> | ${h.p1} ${h.s1} - ${h.s2} ${h.p2}
         </li>`;
-    }).join("");
+            }).join("");   
 
-    document.getElementById('modal').classList.remove("hidden");
-    // Aquí podrías llamar a una función para dibujar el gráfico si lo deseas
-}
+            document.getElementById('modal').classList.remove("hidden");
+            // Aquí podrías llamar a una función para dibujar el gráfico si lo deseas
+        }
 
-function closeModal() { document.getElementById('modal').classList.add("hidden"); }
+        function closeModal() { document.getElementById('modal').classList.add("hidden"); }
 
-document.getElementById('searchRanking').addEventListener('input', () => {
-    currentPage = 1;
-    render();
-});
-</script>
+        document.getElementById('searchRanking').addEventListener('input', () => {
+            currentPage = 1;
+            render();
+        });
+    </script>
 </body>
 
 </html>
