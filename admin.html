@@ -26,6 +26,7 @@
 
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
 
   <style>
     body {
@@ -274,7 +275,7 @@
       <option value="PARAGUAY">Paraguay 🇵🇾</option>
       <option value="CHILE">Chile 🇨🇱</option>
       <option value="URUGUAY">Uruguay 🇺🇾</option>
-      <option value="BRASIL">Brasil 🇧🇷</option>   <!-- NUEVA LÍNEA -->
+      <option value="BRASIL">Brasil 🇧🇷</option> <!-- NUEVA LÍNEA -->
     </select>
     <button onclick="addPlayer()">Agregar Guerrero</button>
     <button onclick="forceRebuild()" style="background:#4CAF50; color:white; margin-top:10px;">🔄 Sincronizar y
@@ -342,12 +343,38 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const auth = firebase.auth();
+
+    // Función para autenticar al cargar la página
+    function autenticarAdmin() {
+      if (sessionStorage.getItem("admin_auth") === "true") {
+        auth.signInAnonymously()
+          .then(() => console.log("Admin autenticado automáticamente"))
+          .catch(err => console.error("Error en auto-auth:", err));
+        return;
+      }
+
+      const password = prompt("Clave de administrador:");
+      if (password === "Vicky321tyler") {
+        sessionStorage.setItem("admin_auth", "true");
+        auth.signInAnonymously()
+          .then(() => console.log("Admin autenticado correctamente"))
+          .catch(err => console.error("Error al autenticar:", err));
+      } else {
+        alert("Clave incorrecta");
+        window.location.href = 'index.html';
+      }
+    }
+
+    // Llamar a la autenticación al cargar
+    autenticarAdmin();
 
     let players = [], history = [];
     let editingId = null;
     const PAGE_SIZE = 10;
     let currentPageLogs = 1;
     let currentPageRanking = 1;
+    let isSaving = false; // Bandera para ignorar actualizaciones propias
 
     const ranks = [
       { name: "E", min: 0, max: 699, class: "rank-E" },
@@ -380,19 +407,50 @@
       return banderas[country.toUpperCase()] ? `<img src="Imagenes/${banderas[country.toUpperCase()]}" class="player-flag">` : "";
     }
 
-    db.ref('/').on('value', snapshot => {
-      const data = snapshot.val();
-      players = data?.players || [];
-      history = data?.history || [];
+    // Listener que solo se activa si estás autenticado
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        console.log("Usuario autenticado, activando listener de datos");
 
-      // Ordenar history descendente por id (nuevos primero)
-      history.sort((a, b) => parseInt(b.id) - parseInt(a.id));
+        db.ref('/').on('value', snapshot => {
+          if (isSaving) {
+            console.log("Actualización ignorada (es nuestro propio guardado)");
+            isSaving = false;
+            return; // No sobrescribimos nada
+          }
 
-      renderAll();
+          const data = snapshot.val();
+          players = data?.players || [];
+          history = data?.history || [];
+
+          history.sort((a, b) => parseInt(b.id) - parseInt(a.id));
+
+          renderAll();
+        });
+      } else {
+        console.log("No autenticado, esperando login...");
+      }
     });
 
     function saveCloud() {
-      db.ref('/').set({ players: players || [], history: history || [] });
+      console.log("Intentando guardar cambios...");
+      isSaving = true; // ← Activa la bandera para que el listener ignore esta actualización
+
+      db.ref('players').set(players || []).then(() => {
+        console.log("Players guardados OK");
+      }).catch(err => {
+        console.error("Error al guardar players:", err.message);
+        alert("Error al guardar jugadores: " + err.message);
+        isSaving = false; // Reset en caso de error
+      });
+
+      db.ref('history').set(history || []).then(() => {
+        console.log("History guardado OK");
+      }).catch(err => {
+        console.error("Error al guardar history:", err.message);
+        alert("Error al guardar historial: " + err.message);
+        isSaving = false; // Reset en caso de error
+      });
     }
 
     function addPlayer() {
@@ -621,4 +679,3 @@
 </body>
 
 </html>
-
