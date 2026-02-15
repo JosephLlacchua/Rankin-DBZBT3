@@ -377,7 +377,7 @@
         "CHILE": "bandera chile.png",
         "URUGUAY": "bandera uruguay.png"
       };
-      return banderas[country.toUpperCase()] ? `<img src="imagenes/${banderas[country.toUpperCase()]}" class="player-flag">` : "";
+      return banderas[country.toUpperCase()] ? `<img src="Imagenes/${banderas[country.toUpperCase()]}" class="player-flag">` : "";
     }
 
     db.ref('/').on('value', snapshot => {
@@ -621,3 +621,4 @@
 </body>
 
 </html>
+
