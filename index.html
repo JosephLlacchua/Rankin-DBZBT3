@@ -10,407 +10,261 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
     <style>
-        /* --- ESTILOS OPTIMIZADOS --- */
-        body {
-            font-family: Arial, sans-serif;
-            background: url('Imagenes/goku wallp.jpg') no-repeat center center fixed;
-            background-size: cover;
-            color: #fff;
-            padding: 10px;
-            margin: 0;
-            position: relative;
-            z-index: 1;
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: -1;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px #FFD700;
-        }
-
-        .table-container {
-            background: rgba(0, 0, 0, 0.6);
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
-            overflow-x: auto;
-            border: 1px solid #333;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-
-        th,
-        td {
-            padding: 10px 6px;
-            border-bottom: 1px solid #333;
-            text-align: center;
-        }
-
-        th {
-            background: #222;
-            color: #FFD700;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-        }
-
-        .player-link {
-            color: #fff;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: 0.3s;
-            text-decoration: underline;
-            text-decoration-color: #444;
-        }
-
-        .player-link:hover {
-            color: #FFD700;
-            transform: scale(1.05);
-        }
-
-        .player-flag {
-            width: 22px;
-            height: 15px;
-            object-fit: cover;
-            display: block;
-            margin: auto;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 2px;
-        }
-
-        .rank-S {
-            color: #FFD700;
-            font-weight: bold;
-            text-shadow: 0 0 5px gold;
-        }
-
-        .rank-A {
-            color: #FF5252;
-            font-weight: bold;
-        }
-
-        .rank-B {
-            color: #4CAF50;
-            font-weight: bold;
-        }
-
-        .rank-C {
-            color: #03A9F4;
-            font-weight: bold;
-        }
-
-        .rank-D {
-            color: #BDBDBD;
-            font-weight: bold;
-        }
-
-        .rank-E {
-            color: #9E9E9E;
-            font-weight: bold;
-        }
-
-        .progress {
-            background: #333;
-            height: 6px;
-            border-radius: 6px;
-            overflow: hidden;
-            min-width: 50px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4caf50, #81c784);
-        }
-
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, .85);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .modal-content {
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 450px;
-            border: 1px solid #FFD700;
-        }
-
-        .pagination {
-            text-align: center;
-            margin-top: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .pagination button {
-            padding: 8px 12px;
-            border-radius: 5px;
-            border: 1px solid #FFD700;
-            background: #111;
-            color: #FFD700;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .pagination button.active {
-            background: #FFD700;
-            color: #111;
-        }
-
-        #searchRanking {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border: 1px solid #444;
-            background: #111;
-            color: white;
-            box-sizing: border-box;
-        }
-
-        .table-container {
-              background: rgba(0, 0, 0, 0.6);
-              padding: 15px;
-              border-radius: 12px;
-              box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
-              overflow-x: auto; /* ya lo tenés, bien */
-              border: 1px solid #333;
-              margin: 0 auto;
-              max-width: 100%; /* evita que se salga en móvil */
-            }
-            
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              font-size: 0.9rem;
-              min-width: 600px; /* fuerza scroll horizontal si es muy ancho */
-            }
-            
-            @media (max-width: 768px) {
-              table {
-                font-size: 0.8rem; /* reduce tamaño en móvil */
-              }
-              th, td {
-                padding: 8px 4px; /* menos padding en móvil */
-              }
-            }
-
-                /* Contadores online/offline - responsivos */
+    /* --- ESTILOS OPTIMIZADOS (versión limpia, sin duplicados) --- */
+    body {
+        font-family: Arial, sans-serif;
+        background: url('Imagenes/goku wallp.jpg') no-repeat center center fixed;
+        background-size: cover;
+        color: #fff;
+        padding: 10px;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: -1;
+    }
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        text-shadow: 0 0 10px #FFD700;
+    }
+    .table-container {
+        background: rgba(0, 0, 0, 0.6);
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+        overflow-x: auto;
+        border: 1px solid #333;
+        margin: 0 auto;
+        max-width: 100%;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+        min-width: 600px; /* fuerza scroll horizontal en móvil si es necesario */
+    }
+    th, td {
+        padding: 10px 6px;
+        border-bottom: 1px solid #333;
+        text-align: center;
+    }
+    th {
+        background: #222;
+        color: #FFD700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+    }
+    /* Alinear título "GUERRERO" (columna 3) a la izquierda */
+    th:nth-child(3) {
+        text-align: left !important;
+        padding-left: 12px !important;
+    }
+    /* Alineación izquierda + círculo a la derecha en columna Guerrero */
+    td:nth-child(3) {
+        text-align: left !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+    .player-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        color: #fff;
+        font-weight: bold;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: color 0.3s;
+        text-decoration: underline;
+        text-decoration-color: #444;
+    }
+    .player-link:hover {
+        color: #FFD700;
+        transform: scale(1.05);
+    }
+    .player-name-text {
+        font-weight: bold;
+        color: #fff;
+    }
+    .player-flag {
+        width: 22px;
+        height: 15px;
+        object-fit: cover;
+        display: block;
+        margin: auto;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+    }
+    .rank-S { color: #FFD700; font-weight: bold; text-shadow: 0 0 5px gold; }
+    .rank-A { color: #FF5252; font-weight: bold; }
+    .rank-B { color: #4CAF50; font-weight: bold; }
+    .rank-C { color: #03A9F4; font-weight: bold; }
+    .rank-D { color: #BDBDBD; font-weight: bold; }
+    .rank-E { color: #9E9E9E; font-weight: bold; }
+    .progress {
+        background: #333;
+        height: 6px;
+        border-radius: 6px;
+        overflow: hidden;
+        min-width: 50px;
+    }
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4caf50, #81c784);
+    }
+    .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    .hidden { display: none; }
+    .modal-content {
+        background: #1e1e1e;
+        padding: 20px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 450px;
+        border: 1px solid #FFD700;
+    }
+    .pagination {
+        text-align: center;
+        margin-top: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+    }
+    .pagination button {
+        padding: 8px 12px;
+        border-radius: 5px;
+        border: 1px solid #FFD700;
+        background: #111;
+        color: #FFD700;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .pagination button.active {
+        background: #FFD700;
+        color: #111;
+    }
+    /* Buscador responsivo */
+    #searchRanking {
+        width: 100%;
+        max-width: 400px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1px solid #444;
+        background: #111;
+        color: white;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.3s;
+    }
+    #searchRanking:focus {
+        border-color: #FFD700;
+        outline: none;
+    }
+    /* Contadores online/offline - responsivos */
+    .online-offline-container {
+        text-align: center;
+        margin: 20px 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+    .online-offline-box {
+        display: inline-block;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        min-width: 220px;
+        max-width: 90%;
+        text-align: center;
+        border: 1px solid;
+    }
+    .online-box {
+        background: rgba(76, 175, 80, 0.2);
+        color: #4CAF50;
+        border-color: #4CAF50;
+    }
+    .offline-box {
+        background: rgba(158, 158, 158, 0.2);
+        color: #9E9E9E;
+        border-color: #9E9E9E;
+    }
+    /* En móviles pequeños, apila verticalmente */
+    @media (max-width: 600px) {
         .online-offline-container {
-          text-align: center;
-          margin: 20px 0;
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 15px;
-        }
-        
-        .online-offline-box {
-          display: inline-block;
-          padding: 12px 24px;
-          border-radius: 12px;
-          font-size: 1.2rem;
-          font-weight: bold;
-          min-width: 220px;
-          max-width: 90%;
-          text-align: center;
-          border: 1px solid;
-        }
-        
-        .online-box {
-          background: rgba(76, 175, 80, 0.2);
-          color: #4CAF50;
-          border-color: #4CAF50;
-        }
-        
-        .offline-box {
-          background: rgba(158, 158, 158, 0.2);
-          color: #9E9E9E;
-          border-color: #9E9E9E;
-        }
-        
-        /* En móviles pequeños, apila verticalmente */
-        @media (max-width: 600px) {
-          .online-offline-container {
             flex-direction: column;
             gap: 10px;
-          }
-          .online-offline-box {
+        }
+        .online-offline-box {
             min-width: 80%;
             padding: 10px 15px;
             font-size: 1.1rem;
-          }
         }
-
-        /* Buscador responsivo */
         #searchRanking {
-          width: 100%;
-          max-width: 400px;
-          padding: 12px 16px;
-          border-radius: 12px;
-          border: 1px solid #444;
-          background: #111;
-          color: white;
-          font-size: 1rem;
-          box-sizing: border-box;
-          transition: border-color 0.3s;
-        }
-        
-        #searchRanking:focus {
-          border-color: #FFD700;
-          outline: none;
-        }
-        
-        /* En móviles pequeños */
-        @media (max-width: 480px) {
-          #searchRanking {
             font-size: 0.95rem;
             padding: 10px 14px;
             max-width: 90%;
-          }
         }
-
-        /* Pulsación sutil para punto verde online */
-        .status-online {
-          display: inline-block;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          background: #4CAF50;
-          margin-left: 8px;
-          vertical-align: middle;
-          box-shadow: 0 0 0 rgba(76, 175, 80, 0.4);
-          animation: pulse 2s infinite ease-in-out;
+        table {
+            font-size: 0.8rem;
         }
-        
-        @keyframes pulse {
-          0% {
-            box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
-          }
-          70% {
-            box-shadow: 0 0 0 8px rgba(76, 175, 80, 0);
-          }
-          100% {
-            box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
-          }
+        th, td {
+            padding: 8px 4px;
         }
-
-        /* Alineación izquierda en columna Guerrero + círculo a la derecha */
-        .player-name-cell {
-          text-align: left !important;
-          padding-left: 12px !important; /* espacio desde el borde izquierdo */
-          padding-right: 12px !important;
-        }
-        
-        .player-name-text {
-          font-weight: bold;
-          color: #fff;
-        }
-        
-        .player-link {
-          display: flex;
-          align-items: center;
-          justify-content: space-between; /* separa nombre y círculo */
-          width: 100%;
-          cursor: pointer;
-          transition: color 0.3s;
-        }
-        
-        .player-link:hover {
-          color: #FFD700;
-        }
-        
-        .status-dot {
-          display: inline-block;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          margin-left: auto; /* empuja el círculo a la derecha */
-          flex-shrink: 0;
-        }
-        
-        /* Pulsación para online (ya lo tenés, pero asegúrate de que esté) */
-        .status-online {
-          background: #4CAF50;
-          animation: pulse 2s infinite ease-in-out;
-        }
-        
-        @keyframes pulse {
-          0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-          70% { box-shadow: 0 0 0 8px rgba(76, 175, 80, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-        }
-        
-        /* Gris para offline */
-        .status-dot:not(.status-online) {
-          background: #9E9E9E;
-        }
-
-        .player-name-text {
-          font-weight: bold;
-          color: #fff;
-        }
-        
-        .player-link {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          width: 100%;
-          gap: 8px; /* espacio entre nombre y círculo - ajustá si querés más/menos */
-        }
-        
-        .status-dot {
-          flex-shrink: 0;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          margin-left: auto; /* empuja el círculo a la derecha */
-        }
-
-        /* Corregir alineación y espacio en columna Racha */
-        td:nth-child(8) {  /* columna Racha es la 8va */
-          text-align: center !important;
-          white-space: nowrap; /* evita que se rompa en varias líneas */
-          padding: 10px 6px !important; /* iguala padding */
-        }
-        
-        td:nth-child(8) span {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px; /* espacio entre ícono 🔥/💀 y número */
-        }
-
-        /* Alinear título "GUERRERO" a la izquierda, igual que los nombres */
-        th:nth-child(3) {
-          text-align: left !important;
-          padding-left: 12px !important; /* mismo padding que usás en los nombres para que quede simétrico */
-        }
-        
-    </style>
+    }
+    /* Pulsación sutil para punto verde online */
+    .status-online {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #4CAF50;
+        box-shadow: 0 0 0 rgba(76, 175, 80, 0.4);
+        animation: pulse 2s infinite ease-in-out;
+    }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+        70% { box-shadow: 0 0 0 8px rgba(76, 175, 80, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+    }
+    /* Gris para offline */
+    .status-dot:not(.status-online) {
+        background: #9E9E9E;
+    }
+    .status-dot {
+        flex-shrink: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-left: auto;
+    }
+    /* Corregir alineación y espacio en columna Racha (columna 8) */
+    td:nth-child(8) {
+        text-align: center !important;
+        white-space: nowrap;
+        padding: 10px 6px !important;
+    }
+    td:nth-child(8) span {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+</style>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-5C5SDM9QZG"></script>
     <script>
@@ -762,6 +616,7 @@
 </body>
 
 </html>
+
 
 
 
