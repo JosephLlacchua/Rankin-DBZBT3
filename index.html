@@ -369,6 +369,40 @@
         .status-dot:not(.status-online) {
           background: #9E9E9E;
         }
+
+        .player-name-text {
+          font-weight: bold;
+          color: #fff;
+        }
+        
+        .player-link {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+          gap: 8px; /* espacio entre nombre y círculo - ajustá si querés más/menos */
+        }
+        
+        .status-dot {
+          flex-shrink: 0;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          margin-left: auto; /* empuja el círculo a la derecha */
+        }
+
+        /* Corregir alineación y espacio en columna Racha */
+        td:nth-child(8) {  /* columna Racha es la 8va */
+          text-align: center !important;
+          white-space: nowrap; /* evita que se rompa en varias líneas */
+          padding: 10px 6px !important; /* iguala padding */
+        }
+        
+        td:nth-child(8) span {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px; /* espacio entre ícono 🔥/💀 y número */
+        }
         
     </style>
     <!-- Google tag (gtag.js) -->
@@ -597,14 +631,13 @@
 
                 return `<tr>
       <td style="font-weight:bold; color:#aaa;">${pos}</td>
-      <td>${getBanderaHTML(p.country)}</td>
-      <td>
-      <td class="player-name-cell">
-       <span class="player-link" onclick="openModal('${p.name}')">
-        <span class="player-name-text">${p.name}</span>
-        <span id="status-${p.name.replace(/[^a-zA-Z0-9]/g, '_')}" class="status-dot"></span>
-       </span>
-      </td>
+      <td style="padding-right: 4px !important; text-align: right;">${getBanderaHTML(p.country)}</td>
+        <td style="padding-left: 4px !important; text-align: left;">
+          <span class="player-link" onclick="openModal('${p.name}')">
+            <span class="player-name-text">${p.name}</span>
+            <span id="status-${p.name.replace(/[^a-zA-Z0-9]/g, '_')}" class="status-dot"></span>
+          </span>
+        </td>
       <td class="${r.class}">${r.name}</td>
       <td style="font-weight:bold;">${Math.round(p.elo)}</td>
       <td><div class="progress"><div class="progress-fill" style="width:${getProgress(p.elo, r)}%"></div></div></td>
@@ -723,6 +756,7 @@
 </body>
 
 </html>
+
 
 
 
