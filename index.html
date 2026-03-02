@@ -293,6 +293,31 @@
             max-width: 90%;
           }
         }
+
+        /* Pulsación sutil para punto verde online */
+        .status-online {
+          display: inline-block;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: #4CAF50;
+          margin-left: 8px;
+          vertical-align: middle;
+          box-shadow: 0 0 0 rgba(76, 175, 80, 0.4);
+          animation: pulse 2s infinite ease-in-out;
+        }
+        
+        @keyframes pulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+          }
+          70% {
+            box-shadow: 0 0 0 8px rgba(76, 175, 80, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+          }
+        }
         
     </style>
     <!-- Google tag (gtag.js) -->
@@ -469,17 +494,20 @@
         
                 // Actualiza puntos en la tabla
                 document.querySelectorAll('[id^="status-"]').forEach(span => {
-                    const rawId = span.id.replace('status-', '');
-                    const playerName = rawId.replace(/_/g, '-'); // normaliza guion para coincidir con Firebase
-        
-                    const userStatus = statusData[playerName];
-                    if (userStatus && userStatus.online === true) {
-                        span.innerHTML = '🟢';
-                        span.style.color = '#4CAF50';
-                    } else {
-                        span.innerHTML = '⚪';
-                        span.style.color = '#9E9E9E';
-                    }
+                  const rawId = span.id.replace('status-', '');
+                  const playerName = rawId.replace(/_/g, '-');
+                
+                  const userStatus = statusData[playerName];
+                  span.className = ''; // limpia clases previas
+                  span.innerHTML = ''; // limpia contenido anterior
+                
+                  if (userStatus && userStatus.online === true) {
+                    span.classList.add('status-online');
+                  } else {
+                    span.innerHTML = '⚪';
+                    span.style.color = '#9E9E9E';
+                    span.style.fontSize = '1.1em';
+                  }
                 });
         
                 // Contador de jugadores online
@@ -643,6 +671,7 @@
 </body>
 
 </html>
+
 
 
 
