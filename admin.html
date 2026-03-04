@@ -916,10 +916,13 @@
     function renderPagination(paginationId, totalItems, currentPageVar, pageChangeCallback) {
         const totalPages = Math.ceil(totalItems / PAGE_SIZE);
         const container = document.getElementById(paginationId);
+        
+        // Si no encuentra el contenedor, muestra advertencia en consola y sale
         if (!container) {
-            console.warn(`No se encontró contenedor con id: ${paginationId}`);
+            console.warn(`No se encontró contenedor con id="${paginationId}" en admin.html`);
             return;
         }
+        
         container.innerHTML = "";
         if (totalPages <= 1) return;
     
@@ -1043,6 +1046,7 @@
 </body>
 
 </html>
+
 
 
 
