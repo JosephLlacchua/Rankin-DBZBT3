@@ -654,17 +654,20 @@
       renderPagination("logsPagination", history.length, currentPageLogs, (p) => { currentPageLogs = p; renderLogs(); });
     }
 
-    function renderPagination(totalItems) {
+    function renderPagination(paginationId, totalItems, currentPageVar, pageChangeCallback) {
         const totalPages = Math.ceil(totalItems / PAGE_SIZE);
-        const container = document.getElementById('pagination');
+        const container = document.getElementById(paginationId);
+        if (!container) {
+            console.warn(`No se encontró contenedor con id: ${paginationId}`);
+            return;
+        }
         container.innerHTML = "";
         if (totalPages <= 1) return;
     
-        const maxVisible = window.innerWidth < 768 ? 5 : 9; // 5 en móvil, 9 en PC
-        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        const maxVisible = window.innerWidth < 768 ? 5 : 9;
+        let startPage = Math.max(1, currentPageVar - Math.floor(maxVisible / 2));
         let endPage = Math.min(totalPages, startPage + maxVisible - 1);
     
-        // Ajustar si estamos cerca del final
         if (endPage - startPage + 1 < maxVisible) {
             startPage = Math.max(1, endPage - maxVisible + 1);
         }
@@ -672,15 +675,19 @@
         // Botón Anterior
         const prevBtn = document.createElement("button");
         prevBtn.innerText = "◄ Anterior";
-        prevBtn.disabled = currentPage === 1;
-        prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; render(); } };
+        prevBtn.disabled = currentPageVar === 1;
+        prevBtn.onclick = () => {
+            if (currentPageVar > 1) {
+                pageChangeCallback(currentPageVar - 1);
+            }
+        };
         container.appendChild(prevBtn);
     
         // Botones de páginas
         if (startPage > 1) {
             const first = document.createElement("button");
             first.innerText = "1";
-            first.onclick = () => { currentPage = 1; render(); };
+            first.onclick = () => pageChangeCallback(1);
             container.appendChild(first);
     
             if (startPage > 2) {
@@ -695,8 +702,8 @@
         for (let i = startPage; i <= endPage; i++) {
             const btn = document.createElement("button");
             btn.innerText = i;
-            if (i === currentPage) btn.className = "active";
-            btn.onclick = () => { currentPage = i; render(); };
+            if (i === currentPageVar) btn.className = "active";
+            btn.onclick = () => pageChangeCallback(i);
             container.appendChild(btn);
         }
     
@@ -711,18 +718,21 @@
     
             const last = document.createElement("button");
             last.innerText = totalPages;
-            last.onclick = () => { currentPage = totalPages; render(); };
+            last.onclick = () => pageChangeCallback(totalPages);
             container.appendChild(last);
         }
     
         // Botón Siguiente
         const nextBtn = document.createElement("button");
         nextBtn.innerText = "Siguiente ►";
-        nextBtn.disabled = currentPage === totalPages;
-        nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; render(); } };
+        nextBtn.disabled = currentPageVar === totalPages;
+        nextBtn.onclick = () => {
+            if (currentPageVar < totalPages) {
+                pageChangeCallback(currentPageVar + 1);
+            }
+        };
         container.appendChild(nextBtn);
     }
-
     function openEdit(id) {
       let h;
       if (id.startsWith('temp-')) {
@@ -774,5 +784,6 @@
 </body>
 
 </html>
+
 
 
