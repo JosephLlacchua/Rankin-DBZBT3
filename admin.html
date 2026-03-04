@@ -917,33 +917,21 @@
         const totalPages = Math.ceil(totalItems / PAGE_SIZE);
         const container = document.getElementById(paginationId);
         
-        // Si no encuentra el contenedor, muestra advertencia en consola y sale
         if (!container) {
-            console.warn(`No se encontró contenedor con id="${paginationId}" en admin.html`);
+            console.warn(`No se encontró contenedor con id="${paginationId}"`);
             return;
         }
         
         container.innerHTML = "";
         if (totalPages <= 1) return;
     
-        const maxVisible = window.innerWidth < 768 ? 5 : 9;
+        const maxVisible = window.innerWidth < 768 ? 7 : 11; // más botones visibles sin texto extra
         let startPage = Math.max(1, currentPageVar - Math.floor(maxVisible / 2));
         let endPage = Math.min(totalPages, startPage + maxVisible - 1);
     
         if (endPage - startPage + 1 < maxVisible) {
             startPage = Math.max(1, endPage - maxVisible + 1);
         }
-    
-        // Botón Anterior
-        const prevBtn = document.createElement("button");
-        prevBtn.innerText = "◄ Anterior";
-        prevBtn.disabled = currentPageVar === 1;
-        prevBtn.onclick = () => {
-            if (currentPageVar > 1) {
-                pageChangeCallback(currentPageVar - 1);
-            }
-        };
-        container.appendChild(prevBtn);
     
         // Botones de páginas
         if (startPage > 1) {
@@ -983,17 +971,6 @@
             last.onclick = () => pageChangeCallback(totalPages);
             container.appendChild(last);
         }
-    
-        // Botón Siguiente
-        const nextBtn = document.createElement("button");
-        nextBtn.innerText = "Siguiente ►";
-        nextBtn.disabled = currentPageVar === totalPages;
-        nextBtn.onclick = () => {
-            if (currentPageVar < totalPages) {
-                pageChangeCallback(currentPageVar + 1);
-            }
-        };
-        container.appendChild(nextBtn);
     }
     function openEdit(id) {
       let h;
@@ -1046,6 +1023,7 @@
 </body>
 
 </html>
+
 
 
 
