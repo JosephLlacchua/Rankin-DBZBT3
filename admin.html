@@ -655,73 +655,73 @@
     }
 
     function renderPagination(totalItems) {
-    const totalPages = Math.ceil(totalItems / PAGE_SIZE);
-    const container = document.getElementById('pagination');
-    container.innerHTML = "";
-    if (totalPages <= 1) return;
-
-    const maxVisible = window.innerWidth < 768 ? 5 : 9; // 5 en móvil, 9 en PC
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-
-    // Ajustar si estamos cerca del final
-    if (endPage - startPage + 1 < maxVisible) {
-        startPage = Math.max(1, endPage - maxVisible + 1);
-    }
-
-    // Botón Anterior
-    const prevBtn = document.createElement("button");
-    prevBtn.innerText = "◄ Anterior";
-    prevBtn.disabled = currentPage === 1;
-    prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; render(); } };
-    container.appendChild(prevBtn);
-
-    // Botones de páginas
-    if (startPage > 1) {
-        const first = document.createElement("button");
-        first.innerText = "1";
-        first.onclick = () => { currentPage = 1; render(); };
-        container.appendChild(first);
-
-        if (startPage > 2) {
-            const dots = document.createElement("span");
-            dots.innerText = "...";
-            dots.style.padding = "8px 12px";
-            dots.style.color = "#FFD700";
-            container.appendChild(dots);
+        const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+        const container = document.getElementById('pagination');
+        container.innerHTML = "";
+        if (totalPages <= 1) return;
+    
+        const maxVisible = window.innerWidth < 768 ? 5 : 9; // 5 en móvil, 9 en PC
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+    
+        // Ajustar si estamos cerca del final
+        if (endPage - startPage + 1 < maxVisible) {
+            startPage = Math.max(1, endPage - maxVisible + 1);
         }
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-        const btn = document.createElement("button");
-        btn.innerText = i;
-        if (i === currentPage) btn.className = "active";
-        btn.onclick = () => { currentPage = i; render(); };
-        container.appendChild(btn);
-    }
-
-    if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-            const dots = document.createElement("span");
-            dots.innerText = "...";
-            dots.style.padding = "8px 12px";
-            dots.style.color = "#FFD700";
-            container.appendChild(dots);
+    
+        // Botón Anterior
+        const prevBtn = document.createElement("button");
+        prevBtn.innerText = "◄ Anterior";
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; render(); } };
+        container.appendChild(prevBtn);
+    
+        // Botones de páginas
+        if (startPage > 1) {
+            const first = document.createElement("button");
+            first.innerText = "1";
+            first.onclick = () => { currentPage = 1; render(); };
+            container.appendChild(first);
+    
+            if (startPage > 2) {
+                const dots = document.createElement("span");
+                dots.innerText = "...";
+                dots.style.padding = "8px 12px";
+                dots.style.color = "#FFD700";
+                container.appendChild(dots);
+            }
         }
-
-        const last = document.createElement("button");
-        last.innerText = totalPages;
-        last.onclick = () => { currentPage = totalPages; render(); };
-        container.appendChild(last);
+    
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = document.createElement("button");
+            btn.innerText = i;
+            if (i === currentPage) btn.className = "active";
+            btn.onclick = () => { currentPage = i; render(); };
+            container.appendChild(btn);
+        }
+    
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const dots = document.createElement("span");
+                dots.innerText = "...";
+                dots.style.padding = "8px 12px";
+                dots.style.color = "#FFD700";
+                container.appendChild(dots);
+            }
+    
+            const last = document.createElement("button");
+            last.innerText = totalPages;
+            last.onclick = () => { currentPage = totalPages; render(); };
+            container.appendChild(last);
+        }
+    
+        // Botón Siguiente
+        const nextBtn = document.createElement("button");
+        nextBtn.innerText = "Siguiente ►";
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; render(); } };
+        container.appendChild(nextBtn);
     }
-
-    // Botón Siguiente
-    const nextBtn = document.createElement("button");
-    nextBtn.innerText = "Siguiente ►";
-    nextBtn.disabled = currentPage === totalPages;
-    nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; render(); } };
-    container.appendChild(nextBtn);
-}
 
     function openEdit(id) {
       let h;
@@ -774,4 +774,5 @@
 </body>
 
 </html>
+
 
