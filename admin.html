@@ -257,6 +257,47 @@
       width: 80%;
       max-width: 300px;
     }
+
+    .pagination {
+    text-align: center;
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px; /* más chico en móvil */
+    max-width: 100%;
+    overflow-x: auto; /* scroll horizontal si se pasa en móvil muy pequeño */
+    }
+    
+    .pagination button {
+        padding: 8px 12px;
+        min-width: 40px;
+        border-radius: 5px;
+        border: 1px solid #FFD700;
+        background: #111;
+        color: #FFD700;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .pagination button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    @media (max-width: 480px) {
+        .pagination button {
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            min-width: 36px;
+        }
+        .pagination span {
+            padding: 6px 8px;
+            font-size: 0.9rem;
+        }
+    }
+    
   </style>
 </head>
 
@@ -613,20 +654,74 @@
       renderPagination("logsPagination", history.length, currentPageLogs, (p) => { currentPageLogs = p; renderLogs(); });
     }
 
-    function renderPagination(id, total, current, callback) {
-      const container = document.getElementById(id);
-      const pages = Math.ceil(total / PAGE_SIZE);
-      if (!container) return;
-      container.innerHTML = "";
-      if (pages <= 1) return;
-      for (let i = 1; i <= pages; i++) {
-        const btn = document.createElement("button");
-        btn.textContent = i;
-        if (i === current) btn.classList.add("active");
-        btn.onclick = () => callback(i);
-        container.appendChild(btn);
-      }
+    function renderPagination(totalItems) {
+    const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+    const container = document.getElementById('pagination');
+    container.innerHTML = "";
+    if (totalPages <= 1) return;
+
+    const maxVisible = window.innerWidth < 768 ? 5 : 9; // 5 en móvil, 9 en PC
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+    // Ajustar si estamos cerca del final
+    if (endPage - startPage + 1 < maxVisible) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
     }
+
+    // Botón Anterior
+    const prevBtn = document.createElement("button");
+    prevBtn.innerText = "◄ Anterior";
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; render(); } };
+    container.appendChild(prevBtn);
+
+    // Botones de páginas
+    if (startPage > 1) {
+        const first = document.createElement("button");
+        first.innerText = "1";
+        first.onclick = () => { currentPage = 1; render(); };
+        container.appendChild(first);
+
+        if (startPage > 2) {
+            const dots = document.createElement("span");
+            dots.innerText = "...";
+            dots.style.padding = "8px 12px";
+            dots.style.color = "#FFD700";
+            container.appendChild(dots);
+        }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        const btn = document.createElement("button");
+        btn.innerText = i;
+        if (i === currentPage) btn.className = "active";
+        btn.onclick = () => { currentPage = i; render(); };
+        container.appendChild(btn);
+    }
+
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            const dots = document.createElement("span");
+            dots.innerText = "...";
+            dots.style.padding = "8px 12px";
+            dots.style.color = "#FFD700";
+            container.appendChild(dots);
+        }
+
+        const last = document.createElement("button");
+        last.innerText = totalPages;
+        last.onclick = () => { currentPage = totalPages; render(); };
+        container.appendChild(last);
+    }
+
+    // Botón Siguiente
+    const nextBtn = document.createElement("button");
+    nextBtn.innerText = "Siguiente ►";
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; render(); } };
+    container.appendChild(nextBtn);
+}
 
     function openEdit(id) {
       let h;
@@ -679,3 +774,4 @@
 </body>
 
 </html>
+
