@@ -810,9 +810,15 @@
     }
 
     function rebuild() {
-      players.forEach(p => { p.elo = 500; p.wins = 0; p.losses = 0; p.streak = 0; });
-
+      players.forEach(p => { 
+        p.elo = 500; 
+        p.wins = 0; 
+        p.losses = 0; 
+        p.streak = 0; 
+      });
+      
       if (history.length > 0) {
+        // Procesar historial en orden cronológico (antiguo → nuevo)
         [...history].reverse().forEach(h => {
           const A = players.find(p => p.name === h.p1);
           const B = players.find(p => p.name === h.p2);
@@ -820,13 +826,26 @@
             const sa = parseInt(h.s1), sb = parseInt(h.s2);
             const winner = sa > sb ? A : B;
             const loser = sa > sb ? B : A;
-            winner.wins++; loser.losses++;
-            const diff = Math.abs(sa - sb);
-            winner.elo += (20 + diff * 2);
-            loser.elo = Math.max(0, loser.elo - (15 + diff * 2));
+            
+            winner.wins++; 
+            loser.losses++;
+            
+            const diff = Math.abs(sa - sb);  // tu bonus por score (5-0 = 5)
+            const K = 32;  // base LoL para ranked
+            
+            // Fórmula LoL: Expected win probability
+            const expected = 1 / (1 + Math.pow(10, (loser.elo - winner.elo) / 400));
+            
+            // Ganancia/pérdida LoL + tu bonus diff score
+            const gain = K * (1 - expected) + (diff * 2);
+            const loss = K * expected + (diff * 2);
+            
+            winner.elo += Math.round(gain);
+            loser.elo = Math.max(0, Math.round(loser.elo - loss));
           }
         });
-
+        
+        // Cálculo de racha (mantiene tu lógica actual)
         players.forEach(p => {
           let currentStreak = 0;
           for (const h of history) {
@@ -1023,6 +1042,7 @@
 </body>
 
 </html>
+
 
 
 
