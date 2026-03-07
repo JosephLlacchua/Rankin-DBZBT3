@@ -7,49 +7,51 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-   
+    
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0a0a0a; color:#fff; padding:15px; margin:0; }
         .container { max-width: 800px; margin: auto; background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .back-btn { background: #222; color: #FFD700; border: 1px solid #FFD700; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; font-weight: bold; transition: 0.3s; }
         .back-btn:hover { background: #FFD700; color: #000; }
-       
+        
         .header-perfil { text-align: center; border-bottom: 2px solid #FFD700; padding-bottom: 15px; margin-bottom: 25px; }
         .header-perfil h1 { margin: 10px 0; color: #FFD700; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 15px; }
         .header-perfil img { width: 40px; border-radius: 4px; border: 1px solid #555; }
-       
+        
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .stat-card { background: linear-gradient(145deg, #1a1a1a, #111); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #333; }
         .stat-card b { display: block; color: #888; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px; }
         .stat-card span { display: block; font-size: 1.6rem; font-weight: bold; color: #fff; }
         .stat-card .highlight { color: #FFD700; }
+
         .chart-container { background: #000; padding: 20px; border-radius: 15px; border: 1px solid #222; margin-bottom: 25px; }
-       
+        
         .history-list { list-style: none; padding: 0; margin: 0; }
-        .history-item { background: #151515; margin-bottom: 10px; padding: 15px; border-radius: 10px; border-left: 5px solid #444; display: flex; flex-direction: column; gap: 6px; }
+        .history-item { background: #151515; margin-bottom: 10px; padding: 15px; border-radius: 10px; border-left: 5px solid #444; display: flex; justify-content: space-between; align-items: center; }
         .history-item.win { border-left-color: #4caf50; background: rgba(76, 175, 80, 0.05); }
         .history-item.loss { border-left-color: #f44336; background: rgba(244, 67, 54, 0.05); }
-        .history-item .delta { font-weight: bold; font-size: 1.1rem; text-align: center; }
-        .history-item .delta.positive { color: #4caf50; }
-        .history-item .delta.negative { color: #ff5252; }
-       
+        
         .pagination { text-align: center; margin-top: 25px; display: flex; justify-content: center; gap: 8px; }
         .pagination button { padding: 10px 15px; cursor: pointer; background: #111; color: #FFD700; border: 1px solid #FFD700; border-radius: 6px; font-weight: bold; }
         .pagination button.active { background: #FFD700; color: #000; }
     </style>
 </head>
 <body>
+
 <div class="container">
     <button class="back-btn" onclick="window.location.href='index.html'">⬅ VOLVER AL RANKING</button>
-   
+    
     <div class="header-perfil">
         <h1 id="pName">Cargando...</h1>
     </div>
+
     <div class="stats-grid" id="pStats"></div>
+
     <div class="chart-container">
         <h3 style="margin-top:0; color:#FFD700; font-size: 0.9rem; text-transform: uppercase;">Progreso de Poder (ELO)</h3>
         <canvas id="pChart"></canvas>
     </div>
+
     <h3 style="border-left: 4px solid #FFD700; padding-left: 10px; text-transform: uppercase; font-size: 1rem;">Bitácora de Batallas</h3>
     <ul id="pHistory" class="history-list"></ul>
     <div id="pPagination" class="pagination"></div>
@@ -67,35 +69,22 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+
     const urlParams = new URLSearchParams(window.location.search);
     const targetName = urlParams.get('player');
     let allHistoryForPlayer = [];
     let currentPage = 1;
     const PAGE_SIZE = 10;
     let chartInstance = null;
-    if(!targetName) window.location.href = 'index.html';
 
-    // Función auxiliar para calcular delta ELO (igual que en rebuild)
-    function calcularDeltaELO(miELO, rivalELO, miScore, rivalScore) {
-        const K = 32;
-        const diff = Math.abs(miScore - rivalScore);
-        const expected = 1 / (1 + Math.pow(10, (rivalELO - miELO) / 400));
-        const gain = K * (miScore > rivalScore ? (1 - expected) : -expected) + (diff * 2);
-        return Math.round(gain);
-    }
+    if(!targetName) window.location.href = 'index.html';
 
     // Función para obtener bandera (igual que en Index)
     function getBanderaImg(country) {
         if(!country) return "";
-        const banderas = { 
-            "ARGENTINA": "bandera argentina.png", 
-            "PERÚ": "bandera peru.png", 
-            "PARAGUAY": "bandera paraguay.png", 
-            "CHILE": "bandera chile.png", 
-            "URUGUAY": "bandera uruguay.png" 
-        };
+        const banderas = { "ARGENTINA": "bandera argentina.png", "PERÚ": "bandera peru.png", "PARAGUAY": "bandera paraguay.png", "CHILE": "bandera chile.png", "URUGUAY": "bandera uruguay.png" };
         const file = banderas[country.toUpperCase()];
-        return file ? `<img src="Imagenes/${file}" style="width:40px; border-radius:4px; border:1px solid #555;">` : "";
+        return file ? `<img src="Imagenes/${file}">` : "";
     }
 
     db.ref('/').on('value', snapshot => {
@@ -103,6 +92,7 @@
         const playersList = data.players || [];
         const fullHistory = data.history || [];
         const player = playersList.find(p => p.name === targetName);
+
         if(!player) {
             document.getElementById('pName').textContent = "Guerrero no encontrado";
             return;
@@ -120,7 +110,7 @@
         `;
 
         allHistoryForPlayer = fullHistory.filter(h => h.p1 === targetName || h.p2 === targetName);
-       
+        
         renderHistory();
         renderChart(playersList, fullHistory);
     });
@@ -129,37 +119,25 @@
         const listEl = document.getElementById('pHistory');
         const pagEl = document.getElementById('pPagination');
         listEl.innerHTML = "";
-       
+        
         const start = (currentPage - 1) * PAGE_SIZE;
         const currentItems = allHistoryForPlayer.slice(start, start + PAGE_SIZE);
+
         currentItems.forEach(h => {
             const isP1 = h.p1 === targetName;
             const win = (isP1 && h.s1 > h.s2) || (!isP1 && h.s2 > h.s1);
             const rival = isP1 ? h.p2 : h.p1;
-            const miScore = isP1 ? h.s1 : h.s2;
-            const rivalScore = isP1 ? h.s2 : h.s1;
-            const marcador = `${h.s1} - ${h.s2}`;
-
-            // Calcular delta ELO (usamos ELO actual del rival como aproximación)
-            const playerData = playersList.find(p => p.name === targetName);
-            const rivalData = playersList.find(p => p.name === rival);
-            const miELO = playerData ? playerData.elo : 500;
-            const rivalELO = rivalData ? rivalData.elo : 500;
-            const delta = calcularDeltaELO(miELO, rivalELO, miScore, rivalScore);
-            const deltaText = win 
-                ? `<div class="delta positive">+${delta} ELO</div>`
-                : `<div class="delta negative">${delta} ELO</div>`;
+            const marcador = isP1 ? `${h.s1} - ${h.s2}` : `${h.s2} - ${h.s1}`;
 
             const li = document.createElement('li');
             li.className = `history-item ${win ? 'win' : 'loss'}`;
             li.innerHTML = `
-                <div style="flex:1;">
+                <div>
                     <b style="color:${win ? '#4caf50' : '#f44336'}">${win ? 'VICTORIA' : 'DERROTA'}</b><br>
                     <small style="color:#888">vs ${rival}</small>
                 </div>
-                ${deltaText}
-                <div style="text-align:right; font-size:1.1rem; font-weight:bold;">
-                    ${marcador}
+                <div style="text-align:right;">
+                    <span style="font-size:1.1rem; font-weight:bold;">${marcador}</span>
                 </div>
             `;
             listEl.appendChild(li);
@@ -183,7 +161,9 @@
         // Inicializamos a todos en 500
         const eloMap = new Map();
         playersList.forEach(p => eloMap.set(p.name, 500));
+
         const timeline = [{ label: 'Inicio', elo: 500 }];
+
         // IMPORTANTE: Recorrer el historial de más viejo a más nuevo para reconstruir la curva
         [...history].reverse().forEach(h => {
             const A = h.p1;
@@ -191,10 +171,11 @@
             const s1 = parseInt(h.s1);
             const s2 = parseInt(h.s2);
             const diff = Math.abs(s1 - s2);
-           
-            // Misma fórmula que el ADMIN (vieja, no LoL - puedes cambiarla si querés consistencia total)
+            
+            // Misma fórmula que el ADMIN
             const pointsWin = 20 + (diff * 2);
             const pointsLoss = 15 + (diff * 2);
+
             if (s1 > s2) {
                 if(eloMap.has(A)) eloMap.set(A, eloMap.get(A) + pointsWin);
                 if(eloMap.has(B)) eloMap.set(B, Math.max(0, eloMap.get(B) - pointsLoss));
@@ -202,6 +183,7 @@
                 if(eloMap.has(B)) eloMap.set(B, eloMap.get(B) + pointsWin);
                 if(eloMap.has(A)) eloMap.set(A, Math.max(0, eloMap.get(A) - pointsLoss));
             }
+
             if (A === targetName || B === targetName) {
                 timeline.push({
                     label: `vs ${A === targetName ? B : A}`,
@@ -209,8 +191,10 @@
                 });
             }
         });
+
         const ctx = document.getElementById('pChart').getContext('2d');
         if (chartInstance) chartInstance.destroy();
+
         chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
