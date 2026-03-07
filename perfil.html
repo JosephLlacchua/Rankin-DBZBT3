@@ -34,6 +34,26 @@
         .pagination { text-align: center; margin-top: 25px; display: flex; justify-content: center; gap: 8px; }
         .pagination button { padding: 10px 15px; cursor: pointer; background: #111; color: #FFD700; border: 1px solid #FFD700; border-radius: 6px; font-weight: bold; }
         .pagination button.active { background: #FFD700; color: #000; }
+
+        /* Estilo para el delta ELO en el medio */
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .delta {
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .delta.positive { color: #4caf50; }
+        .delta.negative { color: #ff5252; }
+        
     </style>
 </head>
 <body>
@@ -87,6 +107,15 @@
         return file ? `<img src="Imagenes/${file}">` : "";
     }
 
+        // Función para calcular delta ELO por pelea (igual que en rebuild con LoL)
+    function calcularDeltaELO(miELO, rivalELO, miScore, rivalScore) {
+        const K = 32;
+        const diff = Math.abs(miScore - rivalScore);
+        const expected = 1 / (1 + Math.pow(10, (rivalELO - miELO) / 400));
+        const gain = K * (miScore > rivalScore ? (1 - expected) : -expected) + (diff * 2);
+        return Math.round(gain);
+    }
+
     db.ref('/').on('value', snapshot => {
         const data = snapshot.val();
         const playersList = data.players || [];
@@ -119,30 +148,42 @@
         const listEl = document.getElementById('pHistory');
         const pagEl = document.getElementById('pPagination');
         listEl.innerHTML = "";
-        
+       
         const start = (currentPage - 1) * PAGE_SIZE;
         const currentItems = allHistoryForPlayer.slice(start, start + PAGE_SIZE);
-
         currentItems.forEach(h => {
             const isP1 = h.p1 === targetName;
             const win = (isP1 && h.s1 > h.s2) || (!isP1 && h.s2 > h.s1);
             const rival = isP1 ? h.p2 : h.p1;
-            const marcador = isP1 ? `${h.s1} - ${h.s2}` : `${h.s2} - ${h.s1}`;
-
+            const miScore = isP1 ? h.s1 : h.s2;
+            const rivalScore = isP1 ? h.s2 : h.s1;
+            const marcador = `${h.s1} - ${h.s2}`;
+    
+            // Calcular delta ELO (usamos ELO actual del rival como aproximación)
+            const playerData = playersList.find(p => p.name === targetName);
+            const rivalData = playersList.find(p => p.name === rival);
+            const miELO = playerData ? playerData.elo : 500;
+            const rivalELO = rivalData ? rivalData.elo : 500;
+            const delta = calcularDeltaELO(miELO, rivalELO, miScore, rivalScore);
+            const deltaText = win 
+                ? `<div class="delta positive">+${delta} ELO</div>`
+                : `<div class="delta negative">${delta} ELO</div>`;
+    
             const li = document.createElement('li');
             li.className = `history-item ${win ? 'win' : 'loss'}`;
             li.innerHTML = `
-                <div>
+                <div style="flex:1;">
                     <b style="color:${win ? '#4caf50' : '#f44336'}">${win ? 'VICTORIA' : 'DERROTA'}</b><br>
                     <small style="color:#888">vs ${rival}</small>
                 </div>
-                <div style="text-align:right;">
-                    <span style="font-size:1.1rem; font-weight:bold;">${marcador}</span>
+                ${deltaText}
+                <div style="text-align:right; font-size:1.1rem; font-weight:bold;">
+                    ${marcador}
                 </div>
             `;
             listEl.appendChild(li);
         });
-
+    
         // Paginación
         const totalPages = Math.ceil(allHistoryForPlayer.length / PAGE_SIZE);
         pagEl.innerHTML = "";
@@ -156,7 +197,6 @@
             }
         }
     }
-
     function renderChart(playersList, history) {
         // Inicializamos a todos en 500
         const eloMap = new Map();
@@ -224,3 +264,4 @@
 </script>
 </body>
 </html>
+
