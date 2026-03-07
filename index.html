@@ -47,43 +47,45 @@
         margin: 0 0 25px;
     }
 
-    /* Contenedor principal con glow + scroll horizontal discreto */
+    /* Contenedor principal con glow */
     .table-container {
         background: var(--card-bg);
         border-radius: 16px;
         border: 1px solid var(--border-glow);
         box-shadow: 0 15px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,215,0,0.08);
-        overflow-x: auto;
-        overflow-y: hidden;
-        -webkit-overflow-scrolling: touch;
         max-width: 100%;
         margin: 0 auto 30px;
         position: relative;
     }
 
-    /* Barra de scroll horizontal delgada y discreta */
-    .table-container::-webkit-scrollbar {
-        height: 8px;
-    }
-
-    .table-container::-webkit-scrollbar-track {
-        background: rgba(0,0,0,0.4);
-        border-radius: 10px;
-    }
-
-    .table-container::-webkit-scrollbar-thumb {
-        background: var(--primary-gold);
-        border-radius: 10px;
-        box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
-    }
-
-    /* En PC: ocultar barra por defecto, mostrar solo al hover del contenedor */
-    @media (min-width: 769px) {
-        .table-container::-webkit-scrollbar-thumb {
-            background: transparent;
+    /* En móvil y tablets: activar scroll horizontal + barra discreta */
+    @media (max-width: 1024px) {
+        .table-container {
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
         }
-        .table-container:hover::-webkit-scrollbar-thumb {
+
+        /* Barra delgada en móvil */
+        .table-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.4);
+            border-radius: 10px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
             background: var(--primary-gold);
+            border-radius: 10px;
+        }
+    }
+
+    /* En PC grande: NO scroll horizontal */
+    @media (min-width: 1025px) {
+        .table-container {
+            overflow-x: hidden;
         }
     }
 
@@ -91,7 +93,13 @@
         width: 100%;
         border-collapse: collapse;
         font-size: 1rem;
-        min-width: 800px; /* Ajusta si querés más ancho mínimo */
+        min-width: 700px; /* Mantiene scroll en móvil */
+    }
+
+    @media (min-width: 1025px) {
+        table {
+            min-width: 100%; /* Se adapta en PC grande sin scroll */
+        }
     }
 
     th {
@@ -117,18 +125,18 @@
     }
 
     /* Destacar filas según posición global */
-    tr[data-position="1"] td { 
-        background: linear-gradient(90deg, rgba(255,215,0,0.25), rgba(255,215,0,0.08)); 
-        border-left: 6px solid #FFD700; 
-        box-shadow: inset 0 0 15px rgba(255,215,0,0.15); 
+    tr[data-position="1"] td {
+        background: linear-gradient(90deg, rgba(255,215,0,0.25), rgba(255,215,0,0.08));
+        border-left: 6px solid #FFD700;
+        box-shadow: inset 0 0 15px rgba(255,215,0,0.15);
     }
-    tr[data-position="2"] td { 
-        background: linear-gradient(90deg, rgba(218,165,32,0.18), rgba(218,165,32,0.06)); 
-        border-left: 5px solid #DAA520; 
+    tr[data-position="2"] td {
+        background: linear-gradient(90deg, rgba(218,165,32,0.18), rgba(218,165,32,0.06));
+        border-left: 5px solid #DAA520;
     }
-    tr[data-position="3"] td { 
-        background: linear-gradient(90deg, rgba(218,165,32,0.12), rgba(218,165,32,0.04)); 
-        border-left: 5px solid #DAA520; 
+    tr[data-position="3"] td {
+        background: linear-gradient(90deg, rgba(218,165,32,0.12), rgba(218,165,32,0.04));
+        border-left: 5px solid #DAA520;
     }
 
     tr[data-position="1"]:hover td,
@@ -167,7 +175,7 @@
 
     .player-link:hover {
         color: var(--primary-gold);
-        transform: translateX(3px); /* menos movimiento para evitar salto en scroll */
+        transform: translateX(3px); /* Movimiento mínimo para evitar salto */
     }
 
     .player-flag {
@@ -696,6 +704,7 @@
 </body>
 
 </html>
+
 
 
 
