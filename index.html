@@ -300,6 +300,20 @@
                 padding: 0 18px;
             }
         }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
         
     </style>
     <!-- Google tag (gtag.js) -->
@@ -606,36 +620,39 @@
         function openModal(name) {
             const p = players.find(x => x.name === name);
             if (!p) return;
-
+        
+            // Título del modal
             document.getElementById('modalTitle').innerHTML = `${getBanderaHTML(p.country)} ${p.name}`;
+        
+            // Estadísticas básicas
             document.getElementById('modalStats').innerHTML = `
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align:left;">
-            <div><b>Rango:</b> <span class="${getRank(p.elo).class}">${getRank(p.elo).name}</span></div>
-            <div><b>ELO:</b> ${Math.round(p.elo)}</div>
-            <div><b>Victorias:</b> ${p.wins}</div>
-            <div><b>Derrotas:</b> ${p.losses}</div>
-        </div>
-        <button onclick="window.location.href='perfil.html?player=${encodeURIComponent(name)}'" 
-                style="width:100%; margin-top:15px; padding:8px; background:#FFD700; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">
-                VER PERFIL COMPLETO
-        </button>
-    `;
-
-            // FIX: No invertimos porque history ya está ordenada descendente (nuevos primero)
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align:left;">
+                    <div><b>Rango:</b> <span class="${getRank(p.elo).class}">${getRank(p.elo).name}</span></div>
+                    <div><b>ELO:</b> ${Math.round(p.elo)}</div>
+                    <div><b>Victorias:</b> ${p.wins}</div>
+                    <div><b>Derrotas:</b> ${p.losses}</div>
+                </div>
+                <button onclick="window.location.href='perfil.html?player=${encodeURIComponent(name)}'"
+                        style="width:100%; margin-top:15px; padding:8px; background:#FFD700; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">
+                        VER PERFIL COMPLETO
+                </button>
+            `;
+        
+            // Últimas 5 peleas (sin invertir, ya que history está ordenada descendente)
             const ultimasPeleas = history.filter(h => h.p1 === name || h.p2 === name).slice(0, 5);
-
-            // === Línea de debug para ver qué peleas está tomando ===
-            console.log("Últimas peleas para", name, ":", ultimasPeleas.map(h => h.id + " | " + h.p1 + " vs " + h.p2));
-
             document.getElementById('modalHistory').innerHTML = ultimasPeleas.map(h => {
                 const gano = (h.p1 === name && h.s1 > h.s2) || (h.p2 === name && h.s2 > h.s1);
                 return `<li style="padding:5px 0; border-bottom:1px solid #333; font-size:0.85rem;">
-            <span style="color:${gano ? '#4caf50' : '#ff5252'}">${gano ? 'WIN' : 'LOSS'}</span> | ${h.p1} ${h.s1} - ${h.s2} ${h.p2}
-        </li>`;
-            }).join("");   
-
+                    <span style="color:${gano ? '#4caf50' : '#ff5252'}">${gano ? 'WIN' : 'LOSS'}</span> | 
+                    ${h.p1} ${h.s1} - ${h.s2} ${h.p2}
+                </li>`;
+            }).join("");
+        
+            // Mostrar el modal (quita hidden)
             document.getElementById('modal').classList.remove("hidden");
-            // Aquí podrías llamar a una función para dibujar el gráfico si lo deseas
+        
+            // Opcional: si querés cargar un gráfico simple aquí (puede ser pesado, así que lo dejamos comentado por ahora)
+            // renderMiniChart(name); // si tenés una función para gráfico pequeño
         }
 
         function closeModal() { document.getElementById('modal').classList.add("hidden"); }
@@ -648,6 +665,7 @@
 </body>
 
 </html>
+
 
 
 
