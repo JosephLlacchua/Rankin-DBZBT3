@@ -53,15 +53,19 @@
             border-radius: 16px;
             border: 1px solid var(--border-glow);
             box-shadow: 0 15px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,215,0,0.08);
-            overflow: hidden;
-            max-width: 1200px;
+            overflow-x: auto;                /* ← Esto permite scroll horizontal */
+            overflow-y: hidden;              /* Evita scroll vertical innecesario */
+            -webkit-overflow-scrolling: touch; /* Hace el scroll suave en iOS */
+            max-width: 100%;                 /* Ocupa todo el ancho disponible */
             margin: 0 auto 30px;
+            padding: 0;                      /* Quitamos padding interno para que la tabla toque los bordes */
         }
     
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 1rem;
+            min-width: 700px;                /* ← Fuerza que sea más ancha que la pantalla en móvil → activa scroll */
         }
     
         th {
@@ -313,6 +317,16 @@
         
         .hidden {
             display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            th, td {
+                padding: 10px 6px;           /* Menos padding en móvil */
+                font-size: 0.85rem;          /* Texto un poco más chico */
+            }
+            
+            /* Opcional: Oculta o reduce columnas menos importantes en móvil */
+            /* td:nth-child(6), th:nth-child(6) { display: none; } */ /* Ej: oculta "Progreso" si querés */
         }
         
     </style>
@@ -665,6 +679,7 @@
 </body>
 
 </html>
+
 
 
 
