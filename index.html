@@ -246,6 +246,61 @@
             .table-container { padding: 10px; }
             th, td { padding: 10px 6px; font-size: 0.9rem; }
         }
+
+        /* Paginación más grande, cómoda y épica */
+        .pagination {
+            text-align: center;
+            margin: 25px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px; /* más espacio entre botones */
+            padding: 10px 0;
+        }
+        
+        .pagination button {
+            min-width: 48px;           /* más ancho mínimo */
+            height: 48px;              /* altura fija para toque fácil */
+            padding: 0 16px;           /* más padding interno */
+            border-radius: 10px;       /* bordes más redondeados */
+            border: 2px solid var(--primary-gold);
+            background: rgba(17,17,17,0.9);
+            color: var(--primary-gold);
+            font-weight: bold;
+            font-size: 1.1rem;         /* texto más grande */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pagination button:hover {
+            background: var(--primary-gold);
+            color: #000;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255,215,0,0.4);
+        }
+        
+        .pagination button.active {
+            background: var(--primary-gold);
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(255,215,0,0.6);
+            transform: scale(1.1);
+        }
+        
+        /* En móvil: aún más grandes para dedos */
+        @media (max-width: 600px) {
+            .pagination button {
+                min-width: 52px;
+                height: 52px;
+                font-size: 1.2rem;
+                padding: 0 18px;
+            }
+        }
+        
     </style>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-5C5SDM9QZG"></script>
@@ -593,6 +648,7 @@
 </body>
 
 </html>
+
 
 
 
