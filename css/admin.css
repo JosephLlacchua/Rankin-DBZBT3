@@ -1,0 +1,158 @@
+/* Styles for Admin Panel */
+
+body {
+    background: #0d0d0d;
+    padding: 10px;
+}
+
+h1, h2 {
+    text-align: center;
+    margin: 10px 0;
+}
+
+section {
+    background: #1a1a1a;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    border: 1px solid #333;
+}
+
+input, button, select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+button {
+    background: #03a9f4;
+    color: #000;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+select {
+    background: #333;
+    color: #fff;
+    cursor: pointer;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+th, td {
+    padding: 12px 5px;
+    border-bottom: 1px solid #333;
+    text-align: center;
+}
+
+th {
+    background: #222;
+    color: #bbb;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.player-name-col {
+    text-align: left;
+    padding-left: 10px;
+    font-weight: bold;
+}
+
+.del-btn, .edit-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    opacity: 0.5;
+    width: auto;
+    display: inline-block;
+}
+
+.del-btn:hover, .edit-btn:hover {
+    opacity: 1;
+}
+
+.log-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.log {
+    background: #111;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+}
+
+.log-num {
+    color: #FFD700;
+    font-weight: bold;
+    width: 35px;
+}
+
+.log-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+}
+
+.log-score {
+    width: 60px;
+    text-align: center;
+    color: #aaa;
+    font-weight: bold;
+}
+
+.win { color: #4CAF50; font-weight: bold; }
+.loss { color: #F44336; font-weight: bold; }
+
+/* Pagination */
+.pagination {
+    text-align: center;
+    margin: 20px 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px;
+}
+
+.pagination button {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    border-radius: 6px;
+    border: 1px solid var(--primary-gold);
+    background: #111;
+    color: var(--primary-gold);
+    font-weight: bold;
+    cursor: pointer;
+    width: auto;
+}
+
+.pagination button.active {
+    background: var(--primary-gold);
+    color: #111;
+}
+
+.pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}

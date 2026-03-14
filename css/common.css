@@ -1,0 +1,78 @@
+/* Common Styles for Ranking DBZ BT3 */
+
+:root {
+    --primary-gold: #FFD700;
+    --dark-gold: #DAA520;
+    --dark-bg: #0a0a0a;
+    --card-bg: rgba(20, 20, 20, 0.85);
+    --border-glow: rgba(255, 215, 0, 0.3);
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0d0d0d;
+    color: #fff;
+    margin: 0;
+    min-height: 100vh;
+}
+
+/* Ranks Styles */
+.rank-S { color: #FFD700; text-shadow: 0 0 10px gold; font-weight: bold; }
+.rank-A { color: #FF5252; font-weight: bold; }
+.rank-B { color: #4CAF50; font-weight: bold; }
+.rank-C { color: #03A9F4; font-weight: bold; }
+.rank-D { color: #BDBDBD; font-weight: bold; }
+.rank-E { color: #9E9E9E; font-weight: bold; }
+
+/* Flags */
+.player-flag {
+    width: 28px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,215,0,0.3);
+    object-fit: cover;
+}
+
+/* Status dots */
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-online { 
+    background: #4CAF50; 
+    box-shadow: 0 0 10px rgba(76,175,80,0.7);
+    animation: pulse 2s infinite; 
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(76,175,80,0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(76,175,80,0); }
+    100% { box-shadow: 0 0 0 0 rgba(76,175,80,0); }
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.modal-content {
+    background: linear-gradient(145deg, #1e1e1e, #111);
+    border: 2px solid var(--primary-gold);
+    box-shadow: 0 0 30px rgba(255,215,0,0.3);
+    border-radius: 16px;
+    padding: 25px;
+    max-width: 90%;
+}

@@ -1,0 +1,99 @@
+/* Styles for Battle Room Page */
+
+body {
+    background: #0d0d0d;
+    margin: 0;
+    padding: 10px;
+    text-align: center;
+}
+
+.container {
+    max-width: 500px;
+    margin: auto;
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid #333;
+}
+
+.player-card {
+    flex: 1;
+    padding: 15px;
+    border-radius: 10px;
+    background: #252525;
+    margin: 5px;
+    border: 2px solid #444;
+}
+
+.score {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: var(--primary-gold);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    padding: 12px;
+    transition: 0.2s;
+}
+
+input, select {
+    padding: 12px;
+    width: 85%;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    text-align: center;
+}
+
+.btn-entrar {
+    background: var(--primary-gold);
+    color: #000;
+    width: 85%;
+    font-size: 1.1rem;
+}
+
+.btn-puntos {
+    width: 100%;
+    font-size: 1.2rem;
+    background: #333;
+    color: white;
+    margin-top: 10px;
+    border: 1px solid #555;
+}
+
+.btn-puntos:active {
+    background: var(--primary-gold);
+    color: black;
+}
+
+.btn-puntos:disabled {
+    opacity: 0.2;
+}
+
+#winner-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.95);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.winner-box {
+    background: #222;
+    padding: 30px;
+    border-radius: 20px;
+    border: 2px solid var(--primary-gold);
+}
