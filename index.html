@@ -3,106 +3,124 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Ranking DBZ BT3</title>
+    <title>Ranking DBZ BT3 — Torneo Competitivo</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐉</text></svg>">
+    <meta name="description" content="Ranking competitivo de Dragon Ball Z Budokai Tenkaichi 3 con sistema ELO, historial de peleas y estadísticas en tiempo real.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="google-adsense-account" content="ca-pub-1831930018468380">
+
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/index.css">
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
     <script src="utils/firebase-config.js"></script>
     <script src="utils/constants.js"></script>
 
-    <!-- Google tag (gtag.js) -->
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-5C5SDM9QZG"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-5C5SDM9QZG');
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-5C5SDM9QZG');
     </script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1831930018468380"
-     crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1831930018468380" crossorigin="anonymous"></script>
 </head>
 
 <body>
 
-    <div id="user-identity-container" style="max-width: 800px; margin: 10px auto; text-align: center;">
-        <div id="user-bar" class="user-bar-style">
-            <span style="color: white;">👤 Guerrero: <strong id="current-user-name" style="color: #FFD700;"></strong></span>
-            <div>
+    <div class="page-wrapper">
+
+        <!-- User Session Bar -->
+        <div id="user-identity-container">
+            <div id="user-bar" class="user-bar-style" style="display:none;">
+                <span style="color: var(--text-muted); font-size: 0.85rem;">👤 Guerrero: <strong id="current-user-name" style="color: var(--gold);"></strong></span>
                 <button onclick="cerrarSesion()" class="btn-exit">Salir</button>
+            </div>
+            <div id="login-prompt" class="login-prompt-style">
+                <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 0.85rem;">Inicia sesión para registrar tus victorias y entrar a las salas:</p>
+                <a href="login.html" style="text-decoration: none;">
+                    <button class="btn-login">🔑 INGRESAR AL RANKING</button>
+                </a>
             </div>
         </div>
 
-        <div id="login-prompt" class="login-prompt-style">
-            <p style="color: #aaa; margin-bottom: 15px;">Inicia sesión para registrar tus victorias y entrar a las salas:</p>
-            <a href="login.html" style="text-decoration: none;">
-                <button class="btn-login">🔑 INGRESAR AL RANKING</button>
-            </a>
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <span class="hero-eyebrow">⚡ Temporada Activa</span>
+            <h1>Ranking DBZ BT3</h1>
+            <p class="hero-subtitle">Sistema ELO · Batallas en Tiempo Real</p>
         </div>
-    </div>
 
-    <h1>🔥 RANKING DBZ BT3 🔥</h1>
-    
-    <div class="ads-container">
-        <script>
-              atOptions = {
-                'key' : 'ea7c460a95baaa7dc4a2bc45b7502fb2',
-                'format' : 'iframe',
-                'height' : 90,
-                'width' : 728,
-                'params' : {}
-              };
-        </script>
-        <script src="https://www.highperformanceformat.com/ea7c460a95baaa7dc4a2bc45b7502fb2/invoke.js"></script>
-    </div>
+        <!-- Ads -->
+        <div class="ads-container">
+            <script>
+                atOptions = {
+                    'key': 'ea7c460a95baaa7dc4a2bc45b7502fb2',
+                    'format': 'iframe',
+                    'height': 90,
+                    'width': 728,
+                    'params': {}
+                };
+            </script>
+            <script src="https://www.highperformanceformat.com/ea7c460a95baaa7dc4a2bc45b7502fb2/invoke.js"></script>
+        </div>
 
-    <div class="search-container">
-      <input id="searchRanking" placeholder="🔍 Buscar guerrero...">
-    </div>
+        <!-- Search -->
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input id="searchRanking" placeholder="Buscar guerrero...">
+        </div>
 
-    <div class="online-offline-container">
-      <div class="online-offline-box online-box">
-        Jugadores en línea: <strong id="onlineCount">0</strong> 🟢
-      </div>
-      
-      <div class="online-offline-box offline-box">
-        Jugadores desconectados: <strong id="offlineCount">0</strong> ⚪
-      </div>
-    </div>
+        <!-- Status Command Center -->
+        <div class="online-offline-container">
+            <div class="online-offline-box online-box">
+                <div class="indicator"></div>
+                <span>En línea: <strong id="onlineCount">0</strong></span>
+            </div>
+            <div class="online-offline-box offline-box">
+                <div class="indicator"></div>
+                <span>Desconectados: <strong id="offlineCount">0</strong></span>
+            </div>
+        </div>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>🌐</th>
-                    <th>Guerrero</th>
-                    <th>Rango</th>
-                    <th>ELO</th>
-                    <th>Progreso</th>
-                    <th>W/L</th>
-                    <th>Racha</th>
-                </tr>
-            </thead>
-            <tbody id="ranking"></tbody>
-        </table>
-    </div>
+        <!-- Ranking Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>País</th>
+                        <th style="text-align:left; padding-left: 14px;">Guerrero</th>
+                        <th>Rango</th>
+                        <th>ELO</th>
+                        <th>Progreso</th>
+                        <th>W/L</th>
+                        <th>Racha</th>
+                    </tr>
+                </thead>
+                <tbody id="ranking"></tbody>
+            </table>
+        </div>
 
-    <div class="pagination" id="pagination"></div>
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
 
+    </div><!-- /page-wrapper -->
+
+    <!-- Player Modal -->
     <div id="modal" class="modal hidden">
         <div class="modal-content">
-            <h3 id="modalTitle" style="text-align:center; margin-top:0;"></h3>
+            <h3 id="modalTitle" class="modal-main-title"></h3>
             <div id="modalStats" class="modal-stats-container"></div>
-            <canvas id="eloChart" width="400" height="200"></canvas>
-            <h4 class="history-title">Últimas Peleas:</h4>
+            <h4 class="history-title">Últimas Peleas</h4>
             <ul id="modalHistory" class="modal-history-list"></ul>
-            <button onclick="closeModal()" class="btn-close-modal">Cerrar</button>
+            <div id="modalActionContainer"></div>
+            <button onclick="closeModal()" class="btn-close-modal">✕ CERRAR</button>
         </div>
     </div>
 
@@ -111,25 +129,3 @@
 </body>
 
 </html>
-</body>
-
-</html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

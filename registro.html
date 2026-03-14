@@ -3,9 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Registro de Guerrero - DBZ BT3</title>
+    <title>Registro de Guerrero — DBZ BT3</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/login.css">
     <link rel="stylesheet" href="css/registro.css">
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -14,29 +17,45 @@
 
 <body>
 
-    <div class="reg-card">
+    <div class="login-card">
+        <div class="auth-logo">⚡ DBZ BT3</div>
         <h2>Nuevo Guerrero</h2>
-        <p class="instruccion">Completa tus datos para el Ranking</p>
+        <p class="auth-subtitle">Únete al Torneo Competitivo</p>
 
-        <input type="text" id="regNombre" placeholder="Nombre de Jugador">
+        <div class="input-group">
+            <label class="input-label" for="regNombre">Nombre de Guerrero</label>
+            <input type="text" id="regNombre" placeholder="Tu nombre en el ranking...">
+        </div>
 
-        <select id="regPais">
-            <option value="" disabled selected>Selecciona tu país</option>
-            <option value="ARGENTINA">Argentina 🇦🇷</option>
-            <option value="PERÚ">Perú 🇵🇪</option>
-            <option value="PARAGUAY">Paraguay 🇵🇾</option>
-            <option value="CHILE">Chile 🇨🇱</option>
-            <option value="URUGUAY">Uruguay 🇺🇾</option>
-            <option value="BRASIL">Brasil 🇧🇷</option>
-            <option value="VENEZUELA">Venezuela 🇻🇪</option>
-        </select>
+        <div class="input-group">
+            <label class="input-label" for="regPais">País</label>
+            <select id="regPais">
+                <option value="" disabled selected>Selecciona tu país</option>
+                <option value="ARGENTINA">Argentina 🇦🇷</option>
+                <option value="PERÚ">Perú 🇵🇪</option>
+                <option value="PARAGUAY">Paraguay 🇵🇾</option>
+                <option value="CHILE">Chile 🇨🇱</option>
+                <option value="URUGUAY">Uruguay 🇺🇾</option>
+                <option value="BRASIL">Brasil 🇧🇷</option>
+                <option value="VENEZUELA">Venezuela 🇻🇪</option>
+            </select>
+        </div>
 
-        <input type="password" id="regPin" placeholder="Contraseña (mín. 6 caracteres)">
-        <input type="password" id="regPinConf" placeholder="Confirma tu contraseña">
+        <div class="input-group">
+            <label class="input-label" for="regPin">Contraseña</label>
+            <input type="password" id="regPin" placeholder="Mínimo 6 caracteres...">
+        </div>
 
-        <button onclick="registrarJugador()">CREAR PERFIL</button>
+        <div class="input-group">
+            <label class="input-label" for="regPinConf">Confirmar Contraseña</label>
+            <input type="password" id="regPinConf" placeholder="Repite tu contraseña...">
+        </div>
 
-        <a href="login.html" class="link">¿Ya tienes cuenta? Inicia sesión</a>
+        <button onclick="registrarJugador()">🔥 CREAR PERFIL DE GUERRERO</button>
+
+        <div class="register-text">
+            <a href="login.html">¿Ya tienes cuenta? Inicia sesión</a>
+        </div>
     </div>
 
     <script src="js/registro.js"></script>

@@ -52,14 +52,12 @@ function updateStatusIndicators(statusData) {
         const userStatus = statusData[playerName];
 
         span.className = 'status-dot';
-        span.innerHTML = '';
+        span.innerHTML = ''; // Limpiamos cualquier emoji
 
         if (userStatus?.online === true) {
             span.classList.add('status-online');
         } else {
-            span.innerHTML = '⚪';
-            span.style.color = '#9E9E9E';
-            span.style.fontSize = '1.1em';
+            span.classList.add('status-offline');
         }
     });
 }
@@ -85,35 +83,42 @@ function render() {
     const start = (currentPage - 1) * PAGE_SIZE;
     const visibles = filtrados.slice(start, start + PAGE_SIZE);
 
-    rankingEl.innerHTML = visibles.map(p => {
+    rankingEl.innerHTML = visibles.map((p, idx) => {
         const r = getRank(p.elo);
         const pos = ordenados.findIndex(x => x.name === p.name) + 1;
-        const isWinningValue = p.streak > 0;
-        const rachaClass = isWinningValue ? 'color:#4caf50' : 'color:#ff5252';
+        let rachaColor = 'color:var(--text-muted)';
+        if (p.streak > 0) rachaColor = 'color:#4ADE80';
+        else if (p.streak < 0) rachaColor = 'color:#FC8585';
         
         let rachaIcon = '';
         if (p.streak > 0) rachaIcon = '🔥';
         else if (p.streak < 0) rachaIcon = '💀';
 
         return `
-            <tr data-position="${pos}">
+            <tr data-position="${pos}" style="animation-delay: ${idx * 0.04}s; cursor: pointer;" onclick="openModal('${p.name}')">
                 <td>${pos}</td>
-                <td style="padding-right: 4px !important; text-align: right;">${getBanderaHTML(p.country)}</td>
-                <td style="padding-left: 4px !important; text-align: left;">
-                    <span class="player-link" onclick="openModal('${p.name}')">
+                <td style="text-align: center; padding: 14px 0px 14px 10px !important;">${getBanderaHTML(p.country)}</td>
+                <td style="padding-left: 24px !important; text-align: left;">
+                    <span class="player-link">
+                        <span id="status-${p.name.replaceAll(/[^a-zA-Z0-9]/g, '_')}" class="status-dot status-offline"></span>
                         <span class="player-name-text">${p.name}</span>
-                        <span id="status-${p.name.replaceAll(/[^a-zA-Z0-9]/g, '_')}" class="status-dot"></span>
                     </span>
                 </td>
-                <td class="${r.class}">${r.name}</td>
-                <td style="font-weight:bold;">${Math.round(p.elo)}</td>
+                <td><span class="rank-badge ${r.class}">${r.name}</span></td>
+                <td><span class="elo-value">${Math.round(p.elo)}</span></td>
                 <td>
                     <div class="progress">
                         <div class="progress-fill" style="width:${getProgress(p.elo, r)}%"></div>
                     </div>
                 </td>
-                <td>${p.wins}/${p.losses}</td>
-                <td style="${rachaClass}; font-weight:bold;">${rachaIcon} ${Math.abs(p.streak || 0)}</td>
+                <td>
+                    <span class="wl-cell">
+                        <span class="wl-wins">${p.wins}</span>
+                        <span class="wl-sep">/</span>
+                        <span class="wl-losses">${p.losses}</span>
+                    </span>
+                </td>
+                <td><span class="streak-value" style="${rachaColor};">${rachaIcon} ${Math.abs(p.streak || 0)}</span></td>
             </tr>
         `;
     }).join("");
@@ -188,30 +193,54 @@ function openModal(name) {
     const p = players.find(x => x.name === name);
     if (!p) return;
 
-    document.getElementById('modalTitle').innerHTML = `${getBanderaHTML(p.country)} ${p.name}`;
+    document.getElementById('modalTitle').innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:center; gap: 12px;">
+            ${getBanderaHTML(p.country)}
+            <span style="background: linear-gradient(135deg, var(--gold-bright), var(--orange-fire)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.25rem; text-shadow: 0 0 20px rgba(255,184,0,0.2);">${p.name.toUpperCase()}</span>
+        </div>`;
+
+    const winRate = (p.wins + p.losses) > 0 ? Math.round((p.wins / (p.wins + p.losses)) * 100) : 0;
+
     document.getElementById('modalStats').innerHTML = `
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align:left;">
-            <div><b>Rango:</b> <span class="${getRank(p.elo).class}">${getRank(p.elo).name}</span></div>
-            <div><b>ELO:</b> ${Math.round(p.elo)}</div>
-            <div><b>Victorias:</b> ${p.wins}</div>
-            <div><b>Derrotas:</b> ${p.losses}</div>
+        <div class="modal-profile-card">
+            <div class="rank-showcase">
+                <span class="rank-badge ${getRank(p.elo).class}" style="transform: scale(1.3); margin-bottom: 6px; box-shadow: 0 0 30px rgba(255,184,0,0.15);">${getRank(p.elo).name}</span>
+                <div class="elo-huge">${Math.round(p.elo)}</div>
+                <div class="elo-label">ELO RATING TOTAL</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box wins">
+                    <span class="stat-value" style="color:#4ADE80">${p.wins}</span>
+                    <span class="stat-label">VICTORIAS</span>
+                </div>
+                <div class="stat-box losses">
+                    <span class="stat-value" style="color:#FC8585">${p.losses}</span>
+                    <span class="stat-label">DERROTAS</span>
+                </div>
+                <div class="stat-box winrate">
+                    <span class="stat-value" style="color:#38BDF8">${winRate}%</span>
+                    <span class="stat-label">WIN RATE</span>
+                </div>
+            </div>
         </div>
-        <button onclick="window.location.href='perfil.html?player=${encodeURIComponent(name)}'"
-                style="width:100%; margin-top:15px; padding:8px; background:#FFD700; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">
-                VER PERFIL COMPLETO
-        </button>
     `;
 
     const ultimasPeleas = history.filter(h => h.p1 === name || h.p2 === name).slice(0, 5);
     document.getElementById('modalHistory').innerHTML = ultimasPeleas.map(h => {
         const gano = (h.p1 === name && h.s1 > h.s2) || (h.p2 === name && h.s2 > h.s1);
         return `
-            <li style="padding:5px 0; border-bottom:1px solid #333; font-size:0.85rem;">
-                <span style="color:${gano ? '#4caf50' : '#ff5252'}">${gano ? 'WIN' : 'LOSS'}</span> | 
-                ${h.p1} ${h.s1} - ${h.s2} ${h.p2}
+            <li style="padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem;">
+                <span style="color:${gano ? '#4ADE80' : '#FC8585'}; font-family:var(--font-mono); font-weight:bold;">${gano ? 'WIN ' : 'LOSS'}</span> | 
+                <span style="color:var(--text-muted);">${h.p1}</span> <strong style="color:var(--gold);">${h.s1} - ${h.s2}</strong> <span style="color:var(--text-muted);">${h.p2}</span>
             </li>
         `;
     }).join("");
+
+    document.getElementById('modalActionContainer').innerHTML = `
+        <button onclick="window.location.href='perfil.html?player=${encodeURIComponent(name)}'" class="btn-primary" style="width:100%; margin-top:12px; padding: 10px;">
+            VER PERFIL COMPLETO
+        </button>
+    `;
 
     document.getElementById('modal').classList.remove("hidden");
 }

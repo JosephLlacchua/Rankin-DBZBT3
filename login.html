@@ -3,8 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Login - Ranking DBZ BT3</title>
+    <title>Ingresar a la Arena — DBZ BT3</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/login.css">
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
@@ -15,17 +17,27 @@
 <body>
 
     <div class="login-card">
-        <h2>LOG IN</h2>
-        <input id="userLogin" type="text" placeholder="Nombre de Guerrero">
-        <input id="passLogin" type="password" placeholder="Contraseña">
+        <div class="auth-logo">⚡ DBZ BT3</div>
+        <h2>Ingresar</h2>
+        <p class="auth-subtitle">Accede a la arena de combate</p>
 
-        <button onclick="intentarLogin()">ENTRAR A LA ARENA</button>
+        <div class="input-group">
+            <label class="input-label" for="userLogin">Nombre de Guerrero</label>
+            <input id="userLogin" type="text" placeholder="Tu nombre en el ranking...">
+        </div>
 
-        <div id="errorMessage" class="error">Usuario o contraseña incorrectos</div>
+        <div class="input-group">
+            <label class="input-label" for="passLogin">Contraseña</label>
+            <input id="passLogin" type="password" placeholder="••••••••">
+        </div>
+
+        <button onclick="intentarLogin()">⚡ ENTRAR A LA ARENA</button>
+
+        <div id="errorMessage" class="error">⚠ Usuario o contraseña incorrectos</div>
 
         <div class="register-text">
-            ¿No tienes una cuenta? <br>
-            <a href="registro.html">Regístrate ahora</a>
+            ¿No tienes una cuenta?<br>
+            <a href="registro.html">Regístrate como Guerrero</a>
         </div>
 
         <a href="index.html" class="back">← Volver al Ranking</a>

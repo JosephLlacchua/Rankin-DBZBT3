@@ -1,79 +1,8 @@
-/* Styles for Registration Page */
+/* ============================================================
+   REGISTRO.CSS — Registration Page (inherits login.css base styles via HTML link)
+   ============================================================ */
 
-body {
-    background: #0d0d0d;
-    text-align: center;
-    padding-top: 50px;
-}
-
-.reg-card {
-    background: #1a1a1a;
-    padding: 30px;
-    border-radius: 15px;
-    display: inline-block;
-    border: 1px solid var(--primary-gold);
-    width: 340px;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
-}
-
-h2 {
-    color: var(--primary-gold);
-    margin-bottom: 5px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-input, select, button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 15px;
-    border-radius: 8px;
-    border: 1px solid #333;
-    font-size: 1rem;
-    box-sizing: border-box;
-}
-
-input, select {
-    background: #000;
-    color: white;
-    outline: none;
-    transition: 0.3s;
-}
-
-input:focus, select:focus {
-    border-color: var(--primary-gold);
-    box-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
-}
-
-button {
-    background: var(--primary-gold);
-    color: black;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-    margin-top: 25px;
-    transition: 0.3s;
-}
-
-button:hover {
-    background: #ffcc00;
-    transform: scale(1.02);
-}
-
-.link {
-    margin-top: 20px;
-    display: block;
-    color: #888;
-    text-decoration: none;
-    font-size: 0.9rem;
-}
-
-.link:hover {
-    color: var(--primary-gold);
-}
-
-.instruccion {
-    color: #666;
-    font-size: 0.8rem;
-    margin-bottom: 10px;
+/* Any overrides specific to registration go here */
+.login-card {
+    max-width: 440px;
 }

@@ -3,8 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Perfil de Jugador - DBZ BT3</title>
+    <title>Perfil de Guerrero — DBZ BT3</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/perfil.css">
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
@@ -15,20 +17,26 @@
 </head>
 
 <body>
+
     <div class="container">
-        <button class="back-btn" onclick="globalThis.location.href='index.html'">⬅ VOLVER AL RANKING</button>
+
+        <button class="back-btn" onclick="globalThis.location.href='index.html'">← VOLVER AL RANKING</button>
 
         <div class="header-perfil">
             <h1 id="pName">Cargando...</h1>
         </div>
+
         <div class="stats-grid" id="pStats"></div>
+
         <div class="chart-container">
-            <h3 style="margin-top:0; color:var(--primary-gold); font-size: 0.9rem; text-transform: uppercase;">Progreso de Poder (ELO)</h3>
+            <div class="chart-title">Progreso de Poder (ELO)</div>
             <canvas id="pChart"></canvas>
         </div>
-        <h3 style="border-left: 4px solid var(--primary-gold); padding-left: 10px; text-transform: uppercase; font-size: 1rem;">Bitácora de Batallas</h3>
+
+        <div class="section-title">Bitácora de Batallas</div>
         <ul id="pHistory" class="history-list"></ul>
         <div id="pPagination" class="pagination"></div>
+
     </div>
 
     <script src="js/perfil.js"></script>
