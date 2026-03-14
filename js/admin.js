@@ -260,9 +260,9 @@ function renderRanking() {
                 <td>${start + i + 1}</td>
                 <td>${getBanderaHTML(p.country)}</td>
                 <td class="player-name-col">${p.name}</td>
-                <td class="${rank.class}">${rank.name}</td>
-                <td>${Math.round(p.elo)}</td>
-                <td>${p.wins}/${p.losses}</td>
+                <td><span class="rank-badge ${rank.class}">${rank.name}</span></td>
+                <td style="font-family: var(--font-mono); font-weight: bold; color: var(--gold);">${Math.round(p.elo)}</td>
+                <td style="color: var(--text-muted);"><span style="color:#4ADE80">${p.wins}</span> / <span style="color:#FC8585">${p.losses}</span></td>
                 <td>${p.streak}</td>
                 <td>
                     <button class="del-btn" onclick="deletePlayer('${p.name}')">🗑️</button>

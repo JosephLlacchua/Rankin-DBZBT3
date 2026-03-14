@@ -3,9 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Admin Ranking DBZ BT3</title>
+    <title>Admin Panel | Ranking DBZ BT3</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/index.css"> <!-- Importar estilos de tabla, rango y botones -->
     <link rel="stylesheet" href="css/admin.css">
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -15,81 +16,100 @@
 </head>
 
 <body>
-
-    <h1>👑 ADMIN PANEL</h1>
-
-    <section>
-        <h2 style="font-size: 1.1rem;">➕ Agregar jugador</h2>
-        <input id="playerName" placeholder="Nombre del jugador">
-        <input id="playerPass" type="password" placeholder="Contraseña (mín. 6 dígitos)">
-        <select id="playerCountry">
-            <option value="">Seleccionar País (Opcional)</option>
-            <option value="ARGENTINA">Argentina 🇦🇷</option>
-            <option value="PERÚ">Perú 🇵🇪</option>
-            <option value="PARAGUAY">Paraguay 🇵🇾</option>
-            <option value="CHILE">Chile 🇨🇱</option>
-            <option value="URUGUAY">Uruguay 🇺🇾</option>
-            <option value="BRASIL">Brasil 🇧🇷</option>
-            <option value="VENEZUELA">Venezuela 🇻🇪</option>
-        </select>
-        <button onclick="addPlayer()">Agregar Guerrero</button>
-    </section>
-
-    <section>
-        <h2 style="font-size: 1.1rem;">⚔️ Registrar pelea</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <input id="p1Input" list="playerList" placeholder="Jugador 1">
-            <input id="s1Input" type="number" placeholder="Puntos 1">
-            <input id="p2Input" list="playerList" placeholder="Jugador 2">
-            <input id="s2Input" type="number" placeholder="Puntos 2">
+    <div class="container">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <a href="index.html" class="back-link">
+                <span>← VOLVER AL RANKING</span>
+            </a>
+            <button onclick="sessionStorage.removeItem('admin_auth'); window.location.href='index.html'" class="btn-logout">
+                SALIR DEL PANEL
+            </button>
         </div>
-        <button onclick="registerMatch()">Guardar resultado</button>
-        <div id="confirm"></div>
-        <datalist id="playerList"></datalist>
-    </section>
+        <h1>👑 PANEL ADMIN</h1>
 
-    <section>
-        <h2 style="font-size: 1.1rem;">📊 Ranking (preview)</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Pos</th>
-                    <th>🌐</th>
-                    <th style="text-align:left; padding-left:10px;">Jugador</th>
-                    <th>Rango</th>
-                    <th>ELO</th>
-                    <th>W/L</th>
-                    <th>Racha</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody id="rankingPreview"></tbody>
-        </table>
-        <div id="rankingPagination" class="pagination"></div>
-    </section>
+        <section class="admin-section">
+            <h2>➕ Agregar Jugador</h2>
+            <div class="input-row">
+                <input id="playerName" placeholder="Nombre en el juego">
+                <input id="playerPass" type="password" placeholder="Contraseña (mín. 6 dígitos)">
+            </div>
+            <select id="playerCountry">
+                <option value="">Seleccionar País (Opcional)</option>
+                <option value="ARGENTINA">Argentina 🇦🇷</option>
+                <option value="PERÚ">Perú 🇵🇪</option>
+                <option value="PARAGUAY">Paraguay 🇵🇾</option>
+                <option value="CHILE">Chile 🇨🇱</option>
+                <option value="URUGUAY">Uruguay 🇺🇾</option>
+                <option value="BRASIL">Brasil 🇧🇷</option>
+                <option value="VENEZUELA">Venezuela 🇻🇪</option>
+                <option value="COLOMBIA">Colombia 🇨🇴</option>
+                <option value="BOLIVIA">Bolivia 🇧🇴</option>
+            </select>
+            <button class="btn-primary" onclick="addPlayer()" style="width:100%; margin-top:10px;">AGREGAR GUERRERO</button>
+        </section>
 
-    <section>
-        <h2 style="font-size: 1.1rem;">📝 Últimos resultados</h2>
-        <div id="logs" class="log-container"></div>
-        <div id="logsPagination" class="pagination"></div>
-    </section>
+        <section class="admin-section">
+            <h2>⚔️ Registrar Pelea</h2>
+            <div style="display: grid; grid-template-columns: 2fr 1fr 2fr 1fr; gap: 12px; margin-bottom: 20px;">
+                <input id="p1Input" list="playerList" placeholder="Jugador 1" style="margin: 0;">
+                <input id="s1Input" type="number" placeholder="Pts" style="margin: 0;">
+                <input id="p2Input" list="playerList" placeholder="Jugador 2" style="margin: 0;">
+                <input id="s2Input" type="number" placeholder="Pts" style="margin: 0;">
+            </div>
+            <button class="btn-primary" onclick="registerMatch()" style="width:100%;">GUARDAR RESULTADO</button>
+            <datalist id="playerList"></datalist>
+        </section>
 
-    <section style="background: rgba(255, 152, 0, 0.1); border-color: #ff9800; margin-top: 30px;">
-        <h2 style="font-size: 1.1rem; color: #ff9800;">🚀 Herramientas de Mantenimiento</h2>
-        <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 15px;">
-            Si tienes datos antiguos guardados en este navegador (`localStorage`), puedes subirlos a la nube. 
-            <br><strong>Atención:</strong> Esto reemplazará los datos actuales de la base de datos.
-        </p>
-        <button onclick="migrarDatosLocales()" style="background:#ff9800; color:black; font-weight:bold; width: 100%;">🚀 MIGRAR DATOS LOCALES A LA NUBE</button>
-    </section>
+        <section class="admin-section">
+            <h2>📊 Preview del Ranking</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>POS</th>
+                            <th></th>
+                            <th style="text-align:left; padding-left:10px;">GUERRERO</th>
+                            <th>RANGO</th>
+                            <th>ELO</th>
+                            <th>W/L</th>
+                            <th>RACHA</th>
+                            <th>ACCIÓN</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankingPreview"></tbody>
+                </table>
+            </div>
+            <div id="rankingPagination" class="pagination"></div>
+        </section>
 
+        <section class="admin-section">
+            <h2>📝 Últimos Resultados</h2>
+            <div id="logs" class="log-container"></div>
+            <div id="logsPagination" class="pagination"></div>
+        </section>
+
+        <section class="admin-section section-warning">
+            <h2 style="color: #ff5252; border-color: rgba(255,82,82,0.2);">🚀 Herramientas de Mantenimiento</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">
+                Si tienes datos antiguos guardados en este navegador (`localStorage`), puedes subirlos a la nube. 
+                <br><strong style="color: #ff5252;">Atención: Esto reemplazará los datos de la base de datos en vivo.</strong>
+            </p>
+            <button class="btn-danger" onclick="migrarDatosLocales()">🔥 MIGRAR DATOS LOCALES A LA NUBE</button>
+        </section>
+    </div>
+
+    <!-- Modal Editar -->
     <div id="editModal" class="modal hidden">
-        <div class="modal-content">
-            <h3 style="text-align:center;">✏️ Editar resultado</h3>
-            <input id="editS1" type="number" placeholder="Puntos 1">
-            <input id="editS2" type="number" placeholder="Puntos 2">
-            <button onclick="saveEdit()">Guardar cambios</button>
-            <button onclick="closeEdit()" style="background:#444; color: white;">Cancelar</button>
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h3 style="font-family: var(--font-display); color: var(--gold); margin: 0 0 20px 0; letter-spacing: 2px;">✏️ EDITAR RESULTADO</h3>
+            <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+                <input id="editS1" type="number" placeholder="Puntos 1" style="margin: 0;">
+                <input id="editS2" type="number" placeholder="Puntos 2" style="margin: 0;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn-primary" onclick="saveEdit()" style="margin: 0; width: 100%;">GUARDAR CAMBIOS</button>
+                <button onclick="closeEdit()" style="margin: 0; width: 100%; background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--border-subtle); padding: 14px 28px; border-radius: 10px; font-family: var(--font-display); text-transform: uppercase; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: 0.2s;">CANCELAR</button>
+            </div>
         </div>
     </div>
 
