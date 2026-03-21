@@ -11,12 +11,16 @@ const RANKS = [
 
 const PAGE_SIZE = 10;
 
+/* Códigos ISO 2 letras → flagcdn.com */
 const BANDERAS = {
-    "ARGENTINA": "bandera argentina.png",
-    "PERÚ": "bandera peru.png",
-    "PARAGUAY": "bandera paraguay.png",
-    "CHILE": "bandera chile.png",
-    "URUGUAY": "bandera uruguay.png",
-    "BRASIL": "bandera brasil.png",
-    "VENEZUELA": "bandera venezuela.png"
+    "ARGENTINA": "ar",
+    "PERÚ":      "pe",
+    "PERU":      "pe",
+    "PARAGUAY":  "py",
+    "CHILE":     "cl",
+    "URUGUAY":   "uy",
+    "BRASIL":    "br",
+    "VENEZUELA": "ve",
+    "COLOMBIA":  "co",
+    "BOLIVIA":   "bo"
 };

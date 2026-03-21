@@ -8,8 +8,10 @@ let chartInstance = null;
 // Helper functions
 function getBanderaHTML(country) {
     if (!country) return "🏳️";
-    const file = BANDERAS[country.toUpperCase()];
-    return file ? `<img src="Imagenes/${file}" class="player-flag">` : "🏳️";
+    const code = BANDERAS[country.toUpperCase()];
+    return code
+        ? `<img src="https://flagcdn.com/w40/${code}.webp" class="player-flag" loading="lazy" decoding="async" alt="${country}">`
+        : "🏳️";
 }
 
 function getRank(elo) {
@@ -22,6 +24,7 @@ function getProgress(elo, rank) {
 }
 
 // Data Listeners
+// Separados para no recrear el listener de status en cada cambio de datos
 db.ref('/').on('value', snapshot => {
     const data = snapshot.val();
     players = data?.players || [];
@@ -36,13 +39,13 @@ db.ref('/').on('value', snapshot => {
 
     render();
     verificarSesion();
+});
 
-    // Secondary Listener for Status
-    db.ref('status').on('value', snapshotStatus => {
-        const statusData = snapshotStatus.val() || {};
-        updateStatusIndicators(statusData);
-        updateCounters(statusData);
-    });
+// Listener de status separado: no se recrea con cada render
+db.ref('status').on('value', snapshotStatus => {
+    const statusData = snapshotStatus.val() || {};
+    updateStatusIndicators(statusData);
+    updateCounters(statusData);
 });
 
 function updateStatusIndicators(statusData) {
@@ -66,10 +69,9 @@ async function updateCounters(statusData) {
     const onlinePlayers = Object.values(statusData).filter(s => s.online === true).length;
     document.getElementById('onlineCount').innerText = onlinePlayers;
 
-    const playersSnapshot = await db.ref('players').once('value');
-    const allPlayers = playersSnapshot.val() || {};
-    const totalPlayers = Object.keys(allPlayers).length;
-    document.getElementById('offlineCount').innerText = totalPlayers - onlinePlayers;
+    // Usar la variable local 'players' en vez de hacer otra consulta a Firebase
+    const totalPlayers = players.length;
+    document.getElementById('offlineCount').innerText = Math.max(0, totalPlayers - onlinePlayers);
 }
 
 // UI Rendering

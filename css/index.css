@@ -1,31 +1,49 @@
-/* ============================================================
-   INDEX.CSS — Ranking Page: DBZ BT3 Gamer Premium
-   ============================================================ */
 
-/* ─── Background ─── */
 body {
-    background:
-        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,184,0,0.12) 0%, transparent 70%),
-        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(249,115,22,0.08) 0%, transparent 60%),
-        url('../Imagenes/goku wallp.jpg') no-repeat center center fixed;
-    background-size: cover, cover, cover;
+    background: transparent;
     padding: 20px 16px 60px;
     position: relative;
 }
 
-body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(to bottom,
-        rgba(0,0,0,0.82) 0%,
-        rgba(0,0,0,0.75) 40%,
-        rgba(0,0,0,0.92) 100%
-    );
-    z-index: 0;
+body::after {
+    z-index: -1 !important; 
 }
 
+/* Capa de imagen fija con aceleración por hardware */
+.bg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    will-change: transform;
+    background: #000; /* Color base */
+}
+
+.bg-layer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('../Imagenes/goku-wallp.webp');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    opacity: 0.75;
+}
+
+/* Filtros y gradientes premium sobre la imagen */
+.bg-layer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,184,0,0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(249,115,22,0.1) 0%, transparent 60%),
+        linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.92) 100%);
+}
+
+/* Contenido siempre por encima */
 body > * { position: relative; z-index: 1; }
+
+
 
 /* ─── Page wrapper ─── */
 .page-wrapper {
@@ -85,13 +103,13 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: rgba(255,184,0,0.06);
+    background: rgba(13,13,18,0.85);
     border: 1px solid var(--border-subtle);
     border-radius: 12px;
     padding: 10px 20px;
     font-size: 0.9rem;
     gap: 12px;
-    backdrop-filter: blur(12px);
+    /* Eliminado backdrop-filter por lag al scrollear */
 }
 
 .btn-exit {
@@ -159,7 +177,6 @@ h1 {
     font-weight: 700;
     letter-spacing: 1px;
     border: 1px solid;
-    backdrop-filter: blur(12px);
     transition: all 0.3s ease;
 }
 
@@ -172,7 +189,7 @@ h1 {
 
 .online-box {
     border-color: rgba(34,197,94,0.35);
-    background: rgba(34,197,94,0.07);
+    background: rgba(13,18,15,0.85);
     color: #86EFAC;
 }
 
@@ -184,7 +201,7 @@ h1 {
 
 .offline-box {
     border-color: rgba(100,116,139,0.35);
-    background: rgba(100,116,139,0.07);
+    background: rgba(13,13,15,0.85);
     color: #CBD5E1;
 }
 
@@ -215,8 +232,8 @@ h1 {
     padding: 14px 20px 14px 48px;
     border-radius: 40px;
     border: 1px solid var(--border-subtle);
-    background: rgba(13,13,18,0.8);
-    backdrop-filter: blur(16px);
+    background: rgba(13,13,18,0.92);
+    /* Eliminado backdrop-filter por rendimiento */
     color: var(--text-primary);
     font-family: var(--font-body);
     font-size: 0.95rem;
@@ -240,9 +257,7 @@ h1 {
 
 /* ─── Table Container ─── */
 .table-container {
-    background: rgba(4,4,7,0.82);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background: rgba(4,4,7,0.94); /* Opacidad alta para reemplazar el blur */
     border: 1px solid rgba(255,184,0,0.18);
     border-radius: 20px;
     box-shadow:
@@ -559,11 +574,10 @@ tr[data-position="3"] td:first-child::before { content: "🥉"; position: absolu
     padding: 0 14px;
     border-radius: 10px;
     border: 1px solid var(--border-subtle);
-    background: rgba(13,13,18,0.8);
+    background: rgba(13,13,18,0.95);
     color: var(--text-muted);
     cursor: pointer;
     transition: all 0.25s ease;
-    backdrop-filter: blur(8px);
 }
 
 .pagination button:hover {
@@ -723,7 +737,7 @@ tr[data-position="3"] td:first-child::before { content: "🥉"; position: absolu
     opacity: 0.8;
 }
 
-/* ─── Responsive ─── */
+/* ─── Responsive Mobile ─── */
 @media (max-width: 768px) {
     h1 { letter-spacing: 3px; }
     th { padding: 12px 8px; font-size: 0.58rem; }
@@ -732,4 +746,29 @@ tr[data-position="3"] td:first-child::before { content: "🥉"; position: absolu
     .rank-badge { padding: 4px 10px; font-size: 0.65rem; }
     .elo-value { font-size: 0.95rem; }
     .progress { min-width: 70px; }
+
+    /* Desactivar backdrop-filter en móvil: muy costoso en GPU */
+    .table-container,
+    .user-bar-style,
+    .online-offline-box,
+    .pagination button {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* Fondo sólido como fallback al quitar el blur */
+    .table-container { background: rgba(4,4,7,0.96) !important; }
+    .user-bar-style  { background: rgba(13,13,18,0.96) !important; }
+    .online-offline-box { border-color: rgba(255,184,0,0.15); }
+    .pagination button  { background: rgba(13,13,18,0.95) !important; }
+
+    /* Reducir animaciones pesadas en móvil */
+    tbody tr { animation: none !important; }
+    .progress-fill { animation: none !important; transition: width 0.4s ease; }
+
+    /* Modal más cómodo en pantalla pequeña */
+    .modal-content { padding: 16px 14px; border-radius: 12px; }
+    .stats-grid { gap: 6px; }
+    .stat-box { padding: 8px 2px; }
+    .stat-value { font-size: 1.1rem; }
 }

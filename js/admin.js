@@ -14,8 +14,10 @@ function getRank(elo) {
 
 function getBanderaHTML(country) {
   if (!country) return "";
-  const file = BANDERAS[country.toUpperCase()];
-  return file ? `<img src="Imagenes/${file}" class="player-flag">` : "";
+  const code = BANDERAS[country.toUpperCase()];
+  return code
+    ? `<img src="https://flagcdn.com/w40/${code}.webp" class="player-flag" loading="lazy" decoding="async" alt="${country}">`
+    : "";
 }
 
 // Authentication
@@ -170,6 +172,13 @@ function migrarDatosLocales() {
     .set(localData)
     .then(() => alert("¡Migración exitosa!"))
     .catch((err) => alert("Error en migración: " + err.message));
+}
+
+function forceRebuild() {
+  if (!confirm("¿Recalcular todas las estadísticas desde el historial?\n\nEsto recalculará el ELO, victorias, derrotas y rachas de todos los jugadores.")) return;
+  rebuild();
+  saveCloud();
+  alert("✅ Ranking sincronizado y recalculado correctamente.");
 }
 
 function registerMatch() {
@@ -339,6 +348,7 @@ globalThis.openEdit = openEdit;
 globalThis.closeEdit = closeEdit;
 globalThis.saveEdit = saveEdit;
 globalThis.migrarDatosLocales = migrarDatosLocales;
+globalThis.forceRebuild = forceRebuild;
 globalThis.deleteMatch = function (id) {
   if (!confirm("¿Eliminar pelea?")) return;
   history = history.filter((h) => h.id !== id);

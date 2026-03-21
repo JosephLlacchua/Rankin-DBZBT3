@@ -7,13 +7,14 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐉</text></svg>">
     <meta name="description" content="Ranking competitivo de Dragon Ball Z Budokai Tenkaichi 3 con sistema ELO, historial de peleas y estadísticas en tiempo real.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#000000">
     <meta name="google-adsense-account" content="ca-pub-1831930018468380">
+
+
 
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/index.css">
 
@@ -32,6 +33,8 @@
 </head>
 
 <body>
+    <!-- Fondo en capa GPU separada → scroll fluido a 60fps -->
+    <div class="bg-layer" aria-hidden="true"></div>
 
     <div class="page-wrapper">
 
